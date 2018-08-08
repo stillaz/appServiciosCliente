@@ -1,14 +1,38 @@
-<ion-header>
-  <ion-navbar>
-    <ion-title>
-      Ionic Blank
-    </ion-title>
-  </ion-navbar>
-</ion-header>
+<ion-content padding class="background">
+  <ion-list>
+    <ion-item-group>
+      <ion-item-divider sticky>
+        <ion-label style="font-size: 20px">
+          <ion-icon name="star" style="color:#FFC300"></ion-icon>
+          <b style="color: #ffffff">Mis favoritos</b>
+        </ion-label>
+      </ion-item-divider>
 
-<ion-content padding>
-  The world is your oyster.
-  <p>
-    If you get lost, the <a href="http://ionicframework.com/docs/v2">docs</a> will be your guide.
-  </p>
+      <ion-item>
+        Hola
+      </ion-item>
+    </ion-item-group>
+
+    <ion-item-group>
+      <ion-item-divider sticky>
+        <ion-label style="font-size: 20px">
+          <ion-icon name="locate" style="color:#00a2ff"></ion-icon>
+          <b style="color: #ffffff">Más cercanos</b>
+        </ion-label>
+      </ion-item-divider>
+
+      <ion-item *ngFor="let empresa of empresasEncontradas">
+        <ion-thumbnail item-start>
+          <img [src]="empresa.imagen" />
+        </ion-thumbnail>
+        <h2>{{empresa.nombre}}</h2>
+        <p>{{empresa.direccion.direccion}}</p>
+        <p>Tel: {{empresa.telefono}}</p>
+
+        <button ion-button>
+          Reservar
+        </button>
+      </ion-item>
+    </ion-item-group>
+  </ion-list>
 </ion-content>
