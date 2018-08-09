@@ -57,4 +57,10 @@ export class HomePage {
     });
   }
 
+  irA(idempresa: string) {
+    this.navCtrl.push('AgendaEmpresaPage', {
+      idempresa: idempresa
+    });
+  }
+
 }

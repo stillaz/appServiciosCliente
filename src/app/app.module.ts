@@ -13,6 +13,7 @@ import { firebaseConfig } from './config.firebase';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
+import { DatePickerModule } from 'ionic3-datepicker';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { HomePage } from '../pages/home/home';
     IonicModule.forRoot(MyApp),
     AngularFireModule.initializeApp(firebaseConfig),
     AngularFirestoreModule.enablePersistence(),
-    AngularFireAuthModule
+    AngularFireAuthModule,
+    DatePickerModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [

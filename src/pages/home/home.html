@@ -4,12 +4,12 @@
       <ion-item-divider sticky>
         <ion-label style="font-size: 20px">
           <ion-icon name="star" style="color:#FFC300"></ion-icon>
-          <b style="color: #ffffff">Mis favoritos</b>
+          <b>Mis favoritos</b>
         </ion-label>
       </ion-item-divider>
 
       <ion-item>
-        Hola
+
       </ion-item>
     </ion-item-group>
 
@@ -17,21 +17,23 @@
       <ion-item-divider sticky>
         <ion-label style="font-size: 20px">
           <ion-icon name="locate" style="color:#00a2ff"></ion-icon>
-          <b style="color: #ffffff">Más cercanos</b>
+          <b>Más cercanos</b>
         </ion-label>
       </ion-item-divider>
 
-      <ion-item *ngFor="let empresa of empresasEncontradas">
+      <ion-item *ngFor="let empresa of empresasEncontradas" (click)="irA(empresa.id)" [ngSwitch]="empresa.negocio">
         <ion-thumbnail item-start>
           <img [src]="empresa.imagen" />
         </ion-thumbnail>
-        <h2>{{empresa.nombre}}</h2>
+        <h2>
+          <b>{{empresa.nombre}}</b>
+        </h2>
         <p>{{empresa.direccion.direccion}}</p>
         <p>Tel: {{empresa.telefono}}</p>
 
-        <button ion-button>
-          Reservar
-        </button>
+        <ion-avatar *ngSwitchCase="'Barbería'" item-end>
+          <img src="assets/imgs/barberia-logo.png" />
+        </ion-avatar>
       </ion-item>
     </ion-item-group>
   </ion-list>
