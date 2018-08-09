@@ -95,6 +95,8 @@ export class AgendaEmpresaPage {
   updateUsuarios() {
     this.usuariosCollection.valueChanges().subscribe(data => {
       this.usuarios = data;
+
+      this.updateAngenda();
     });
   }
 
@@ -153,16 +155,11 @@ export class AgendaEmpresaPage {
       this.usuariosCollection.valueChanges().subscribe(data => {
         data.forEach((usuario, index) => {
           this.loadDisponibilidadUsuario(usuario).then(dataUsuario => {
+            console.log('entra');
             noDisponible.push.apply(noDisponible, dataUsuario);
+            console.log(noDisponible);
           });
-
-          while (noDisponible.length < (index + 1) * 2) {
-            console.log('hola');
-            console.log(noDisponible.length);
-          }
         });
-
-        resolve(noDisponible);
       });
     });
   }
@@ -200,11 +197,6 @@ export class AgendaEmpresaPage {
       });
     });
     return usuarios;
-  }
-
-  private scrollTo(element: string) {
-    let yOffset = document.getElementById(element).offsetTop;
-    this.content.scrollTo(0, yOffset - 50, 1000);
   }
 
   updateAngenda() {
@@ -246,18 +238,12 @@ export class AgendaEmpresaPage {
 
           this.horario.push(reserva);
           fechaInicio = moment(reserva.fechaFin);
+        } else {
+          fechaInicio = fechaInicio.add(this.tiempoServicio, 'minutes');
         }
 
         for (let grupo in grupos) {
           this.horarios.push({ grupo: grupo, disponibilidad: grupos[grupo] });
-        }
-
-        let horaAhora = ahora.getHours();
-
-        if (horaAhora >= this.horaInicio && horaAhora <= this.horaFin && moment(ahora).diff(fechaInicio, 'days') === 0) {
-          setTimeout(() => {
-            this.scrollTo(this.constantes.EVENTOS.ACTUAL)
-          }, 1);
         }
       }
     });
