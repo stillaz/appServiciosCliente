@@ -21,14 +21,14 @@
       <h2>{{usuario.nombre}}</h2>
 
       <div>
-        <ion-note *ngFor="let perfil of usuario.perfiles"><h5>{{perfil.nombre}} </h5></ion-note>
+        <ion-note *ngFor="let perfil of usuario.perfiles">
+          <h5>{{perfil.nombre}} </h5>
+        </ion-note>
       </div>
 
-      <div item-end *ngFor="let perfil of usuario.perfiles">
-        <ion-avatar item-end *ngIf="perfil.imagen">
-          <img [src]="perfil.imagen">
-        </ion-avatar>
-      </div>
+      <button ion-button item-end (click)="seleccionar(usuario)">
+        Seleccionar
+      </button>
     </ion-item>
   </ion-list>
 </ion-content>

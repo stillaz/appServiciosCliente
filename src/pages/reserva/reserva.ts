@@ -171,6 +171,10 @@ export class ReservaPage {
     });
   }
 
+  reservar(){
+    
+  }
+
   agregar(servicio: ServicioOptions) {
     this.loadUsuariosDisponibles(servicio).subscribe(data => {
       if (!data || !data[0]) {

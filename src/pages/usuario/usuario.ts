@@ -145,4 +145,8 @@ export class UsuarioPage {
     });
   }
 
+  seleccionar(usuario: UsuarioOptions) {
+    this.viewCtrl.dismiss(usuario);
+  }
+
 }
