@@ -1,0 +1,34 @@
+<!--
+  Generated template for the UsuarioPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Selecciona el usuario</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+<ion-content padding>
+  <ion-list *ngFor="let usuario of usuarios">
+    <ion-item (click)="ver(usuario)">
+      <ion-thumbnail item-start *ngIf="usuario.imagen">
+        <img [src]="usuario.imagen">
+      </ion-thumbnail>
+      <h2>{{usuario.nombre}}</h2>
+
+      <div>
+        <ion-note *ngFor="let perfil of usuario.perfiles"><h5>{{perfil.nombre}} </h5></ion-note>
+      </div>
+
+      <div item-end *ngFor="let perfil of usuario.perfiles">
+        <ion-avatar item-end *ngIf="perfil.imagen">
+          <img [src]="perfil.imagen">
+        </ion-avatar>
+      </div>
+    </ion-item>
+  </ion-list>
+</ion-content>

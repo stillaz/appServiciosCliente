@@ -94,7 +94,12 @@ export class AgendaEmpresaPage {
 
   updateUsuarios() {
     this.usuariosCollection.valueChanges().subscribe(data => {
-      this.usuarios = data;
+      this.usuarios = data.map(usuario => {
+        let servicios = usuario.perfiles.map(perfil => { return perfil.servicios });
+        if (servicios.some(servicio => servicio !== null && servicio.length > 0)) {
+          return usuario;
+        }
+      });
 
       this.updateAngenda();
     });
@@ -158,9 +163,9 @@ export class AgendaEmpresaPage {
           this.loadDisponibilidadUsuario(usuario).then(dataUsuario => {
             noDisponible.push.apply(noDisponible, dataUsuario);
           });
-          observer.next(noDisponible);
-          observer.complete();
         });
+        observer.next(noDisponible);
+        observer.complete();
       });
 
       return { unsubscribe() { } };
@@ -273,6 +278,7 @@ export class AgendaEmpresaPage {
   reservar(reserva: DisponibilidadOptions) {
     this.navCtrl.push('ReservaPage', {
       disponibilidad: reserva,
+      idempresa: this.empresa.id,
       horario: this.horario
     });
   }
