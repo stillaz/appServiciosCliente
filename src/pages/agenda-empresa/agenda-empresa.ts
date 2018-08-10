@@ -150,17 +150,20 @@ export class AgendaEmpresaPage {
   }
 
   private loadDisponibilidadUsuarios() {
-    let noDisponible: any[] = [];
-    return new Promise<any[]>(resolve => {
+    return new Observable<any[]>((observer) => {
+      let noDisponible: any[] = [];
+
       this.usuariosCollection.valueChanges().subscribe(data => {
-        data.forEach((usuario, index) => {
+        data.forEach(usuario => {
           this.loadDisponibilidadUsuario(usuario).then(dataUsuario => {
-            console.log('entra');
             noDisponible.push.apply(noDisponible, dataUsuario);
-            console.log(noDisponible);
           });
+          observer.next(noDisponible);
+          observer.complete();
         });
       });
+
+      return { unsubscribe() { } };
     });
   }
 
@@ -199,18 +202,35 @@ export class AgendaEmpresaPage {
     return usuarios;
   }
 
-  updateAngenda() {
-    this.horario = [];
-    this.horarios = [];
-    let grupos = [];
-    let fechaInicio = moment(this.initDate).startOf('day').hours(this.horaInicio);
-    let fechaFin = moment(this.initDate).hours(this.horaFin);
+  calcularDentroDe(fechaInicio: Date): string {
     let ahora = new Date();
-    this.loadDisponibilidadUsuarios().then(dataDisponibilidadUsuarios => {
+    let fecha = moment(fechaInicio);
+    let minutos = fecha.diff(ahora, 'minutes');
+    if (minutos >= 60) {
+      let horas = fecha.diff(ahora, 'hours');
+      if (horas >= 24) {
+        let dias = fecha.diff(ahora, 'days');
+        return dias + (dias === 1 ? ' día' : ' días');
+      } else {
+        return horas + (horas === 1 ? ' hora' : ' horas');
+      }
+    } else {
+      return minutos + (minutos === 1 ? ' minuto' : ' minutos');
+    }
+  }
+
+  updateAngenda() {
+    this.loadDisponibilidadUsuarios().subscribe(dataDisponibilidadUsuarios => {
+      this.horario = [];
+      this.horarios = [];
+      let grupos = [];
+      let fechaInicio = moment(this.initDate).startOf('day').hours(this.horaInicio);
+      let fechaFin = moment(this.initDate).hours(this.horaFin);
+      let ahora = new Date();
       while (fechaInicio.isSameOrBefore(fechaFin.toDate())) {
         let fechaInicioReserva = fechaInicio.toDate();
         let fechaFinReserva = moment(fechaInicio).add(this.tiempoServicio, 'minutes').toDate();
-        if (moment(fechaFinReserva).add(30, 'minutes').isSameOrAfter(ahora)) {
+        if (moment(fechaFinReserva).add(-60, 'minutes').isSameOrAfter(ahora)) {
           let usuariosDisponibles = this.updateUsuariosDisponible(dataDisponibilidadUsuarios, fechaInicioReserva);
           let reserva: DisponibilidadOptions;
           if (usuariosDisponibles[0]) {
@@ -219,7 +239,8 @@ export class AgendaEmpresaPage {
               fechaFin: fechaFinReserva,
               estado: this.constantes.ESTADOS_RESERVA.DISPONIBLE,
               evento: this.constantes.EVENTOS.OTRO,
-              usuarios: usuariosDisponibles
+              usuarios: usuariosDisponibles,
+              dentroDe: this.calcularDentroDe(fechaInicioReserva)
             };
           }
 
@@ -241,11 +262,18 @@ export class AgendaEmpresaPage {
         } else {
           fechaInicio = fechaInicio.add(this.tiempoServicio, 'minutes');
         }
-
-        for (let grupo in grupos) {
-          this.horarios.push({ grupo: grupo, disponibilidad: grupos[grupo] });
-        }
       }
+
+      for (let grupo in grupos) {
+        this.horarios.push({ grupo: grupo, disponibilidad: grupos[grupo] });
+      }
+    });
+  }
+
+  reservar(reserva: DisponibilidadOptions) {
+    this.navCtrl.push('ReservaPage', {
+      disponibilidad: reserva,
+      horario: this.horario
     });
   }
 

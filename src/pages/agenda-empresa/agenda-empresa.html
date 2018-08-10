@@ -41,5 +41,27 @@
 
 
 <ion-content padding no-tap-scroll="true">
-  
+  <ion-list>
+    <ion-item-group *ngFor="let horario of horarios">
+
+      <ion-item-divider sticky color="light">
+        <ion-label>
+          {{horario.grupo}}
+        </ion-label>
+      </ion-item-divider>
+
+      <ion-item-sliding *ngFor="let disponibilidad of horario.disponibilidad" #slidingItem [attr.track]="disponibilidad.estado | lowercase"
+        [id]="disponibilidad.evento">
+
+        <ion-item>
+          <h2>{{disponibilidad.fechaInicio | date: 'hh:mm a'}} &mdash; {{disponibilidad.fechaFin | date: 'hh:mm a'}}</h2>
+          <ion-note><h5>Dentro de {{disponibilidad.dentroDe}}</h5></ion-note>
+          <p>{{disponibilidad.estado}}</p>
+
+          <button ion-button [hidden]="disponibilidad.estado !== constantes.ESTADOS_RESERVA.DISPONIBLE || disponibilidad.fechaFin < actual"
+            clear item-end (click)="reservar(disponibilidad)">Reservar</button>
+        </ion-item>
+      </ion-item-sliding>
+    </ion-item-group>
+  </ion-list>
 </ion-content>

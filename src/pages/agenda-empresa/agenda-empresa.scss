@@ -1,3 +1,19 @@
-page-agenda-empresa {
+$categories: (
+    disponible: #3BC7C4,
+    reservado: #FD8B2D,
+    ejecutando: #FE4C52,
+    no-disponible: #222
+);
+    
+@function auxiliary-categories() {
+    @return map-remove($categories);
+}
 
+page-agenda-empresa {
+    @each $track, $value in auxiliary-categories() {
+        ion-item-sliding[track=#{$track}] ion-label {
+            border-left: 2px solid $value;
+            padding-left: 10px;
+        }
+    }
 }
