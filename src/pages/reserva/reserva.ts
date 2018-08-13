@@ -8,6 +8,11 @@ import { UsuarioOptions } from '../../interfaces/usuario-options';
 import { EmpresaOptions } from '../../interfaces/empresa-options';
 import moment from 'moment';
 import { Observable } from '../../../node_modules/rxjs';
+import * as DataProvider from '../../providers/constants';
+import { ReservaOptions } from '../../interfaces/reserva-options';
+import { ClienteOptions } from '../../interfaces/cliente-options';
+import { TotalesServiciosOptions } from '../../interfaces/totales-servicios-options';
+import { TotalDiarioOptions } from '../../interfaces/total-diario-options';
 
 /**
  * Generated class for the ReservaPage page.
@@ -23,6 +28,7 @@ import { Observable } from '../../../node_modules/rxjs';
 })
 export class ReservaPage {
 
+  constantes = DataProvider;
   disponibilidad: DisponibilidadOptions;
   horario: DisponibilidadOptions[];
   servicios: ServicioOptions[];
@@ -32,7 +38,12 @@ export class ReservaPage {
   idcarrito: number;
   filePathUsuarios: string;
   usuariosCollection: AngularFirestoreCollection<UsuarioOptions>;
-  usuario: UsuarioOptions;
+  tiempoDisponibilidad: number;
+  disponibilidadBloquear: ReservaOptions[] = [];
+  cantidad = 0;
+  carrito: ReservaOptions[] = [];
+  totalServicios: number = 0;
+  disponibilidadDoc: AngularFirestoreDocument<ReservaOptions>;
 
   constructor(
     public navCtrl: NavController,
@@ -49,7 +60,30 @@ export class ReservaPage {
     this.empresaDoc = this.afs.doc<EmpresaOptions>(this.filePathEmpresa);
     this.usuariosCollection = this.empresaDoc.collection('/usuarios/');
     this.loadIdCarrito();
+    this.updateEmpresa();
     this.updateServicios();
+  }
+
+  genericErrorAlert() {
+    this.alertCtrl.create({
+      title: 'Ha ocurrido un error',
+      message: 'La empresa no existe',
+      buttons: [{
+        text: 'OK',
+        role: 'cancel'
+      }]
+    }).present();
+  }
+
+  updateEmpresa() {
+    this.empresaDoc.valueChanges().subscribe(data => {
+      if (data) {
+        this.tiempoDisponibilidad = data.configuracion ? data.configuracion.tiempoDisponibilidad : 30;
+      } else {
+        this.genericErrorAlert();
+        this.navCtrl.pop();
+      }
+    });
   }
 
   updateServicios() {
@@ -88,7 +122,7 @@ export class ReservaPage {
         indiceCarritoDoc.set({ id: this.idcarrito + 1 });
         resolve('ok');
       });
-    })
+    });
   }
 
   loadReservaFechaUsuario(usuario: UsuarioOptions) {
@@ -171,8 +205,164 @@ export class ReservaPage {
     });
   }
 
-  reservar(){
-    
+  genericAlert(titulo: string, mensaje: string) {
+    let mensajeAlert = this.alertCtrl.create({
+      title: titulo,
+      message: mensaje,
+      buttons: ['OK']
+    });
+
+    mensajeAlert.present();
+  }
+
+  validarReservaDisponible(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.carrito.forEach(reservaNueva => {
+        let reservaDoc: AngularFirestoreDocument<ReservaOptions> = this.disponibilidadDoc.collection('disponibilidades').doc(reservaNueva.fechaInicio.getTime().toString());
+        let read = reservaDoc.valueChanges().subscribe(data => {
+          if (data) {
+            reject('La disponibilidad ' + moment(reservaNueva.fechaInicio).locale('es').format('h:mm a') + ' fue reservada.');
+          }
+        });
+        read.unsubscribe();
+        resolve('ok');
+      });
+    });
+  }
+
+  guardar(usuario: UsuarioOptions) {
+    let batch = this.afs.firestore.batch();
+    this.validarReservaDisponible().then(() => {
+      this.carrito.forEach(reservaNueva => {
+        let reservaDoc: AngularFirestoreDocument<ReservaOptions> = this.disponibilidadDoc.collection('disponibilidades').doc(reservaNueva.fechaInicio.getTime().toString());
+        batch.set(reservaDoc.ref, reservaNueva);
+
+        let mesServicio = moment(reservaNueva.fechaInicio).startOf('month');
+
+        let totalesServiciosDoc = this.afs.doc(this.filePathEmpresa + '/totalesservicios/' + mesServicio);
+
+        let totalServiciosReserva = reservaNueva.servicio.map(servicioReserva => Number(servicioReserva.valor)).reduce((a, b) => a + b);
+
+        this.disponibilidadDoc.ref.get().then(datosDiarios => {
+          if (datosDiarios.exists) {
+            let totalDiarioActual = datosDiarios.get('totalServicios');
+            let cantidadDiarioActual = datosDiarios.get('cantidadServicios');
+            let totalDiario = totalDiarioActual ? Number(totalDiarioActual) + totalServiciosReserva : totalServiciosReserva;
+            let cantidadDiario = cantidadDiarioActual ? Number(cantidadDiarioActual) + 1 : 1;
+            batch.update(this.disponibilidadDoc.ref, { totalServicios: totalDiario, cantidadServicios: cantidadDiario, fecha: new Date() });
+          } else {
+            let totalServicioUsuario: TotalDiarioOptions = {
+              idusuario: usuario.id,
+              usuario: reservaNueva.nombreusuario,
+              imagenusuario: '',
+              totalServicios: totalServiciosReserva,
+              cantidadServicios: 1,
+              año: reservaNueva.fechaInicio.getFullYear(),
+              dia: reservaNueva.fechaInicio.getDay(),
+              id: moment(reservaNueva.fechaInicio).startOf('day').toDate().getTime(),
+              mes: reservaNueva.fechaInicio.getMonth(),
+              fecha: new Date()
+            }
+            batch.set(this.disponibilidadDoc.ref, totalServicioUsuario);
+          }
+
+          totalesServiciosDoc.ref.get().then(() => {
+            batch.set(totalesServiciosDoc.ref, { ultimaactualizacion: new Date() });
+
+            let totalesServiciosUsuarioDoc = totalesServiciosDoc.collection('totalesServiciosUsuarios').doc<TotalesServiciosOptions>(usuario.id);
+
+            totalesServiciosUsuarioDoc.ref.get().then(datos => {
+              if (datos.exists) {
+                let totalActual = datos.get('totalServicios');
+                let cantidadActual = datos.get('cantidadServicios');
+                batch.update(totalesServiciosUsuarioDoc.ref, { totalServicios: Number(totalActual) + totalServiciosReserva, cantidadServicios: Number(cantidadActual) + 1, fecha: new Date() });
+              } else {
+                let totalServicioUsuario: TotalesServiciosOptions = {
+                  idusuario: usuario.id,
+                  usuario: reservaNueva.nombreusuario,
+                  imagenusuario: '',
+                  totalServicios: totalServiciosReserva,
+                  cantidadServicios: 1,
+                  fecha: new Date()
+                }
+                batch.set(totalesServiciosUsuarioDoc.ref, totalServicioUsuario);
+              }
+
+              batch.commit().then(() => {
+                this.genericAlert('Reserva registrada', 'Se ha registrado la reserva');
+              }).catch(err => this.genericAlert('Error', err));
+
+              this.navCtrl.pop();
+            });
+          });
+        });
+      });
+    }).catch(err => {
+      this.genericAlert('Error reserva', err);
+      this.navCtrl.pop();
+    });
+  }
+
+  reservar(usuario: UsuarioOptions, servicio: ServicioOptions) {
+    let dia = moment(this.disponibilidad.fechaInicio).startOf('day').toDate();
+    this.disponibilidadDoc = this.usuariosCollection.doc(usuario.id).collection('disponibilidades').doc(dia.getTime().toString());
+    let ultimoHorario = this.disponibilidad.fechaInicio;
+
+    let disponibilidadBloquear: ReservaOptions[] = [];
+    let reserva: ReservaOptions;
+    let disponible: boolean = true;
+    let contador = 0;
+    for (let i = 0; i <= Number(Math.ceil(servicio.duracion_MIN / this.tiempoDisponibilidad) - 1); i++) {
+      contador = i;
+      let horaInicio = moment(ultimoHorario).add(i * this.tiempoDisponibilidad, 'minutes').toDate();
+
+      let disponibilidadEncontrada = this.horario.find(disponibilidad =>
+        disponibilidad.fechaInicio.getTime() === horaInicio.getTime()
+      );
+
+      if (!disponibilidadEncontrada || disponibilidadEncontrada.estado !== this.constantes.ESTADOS_RESERVA.DISPONIBLE) {
+        disponible = false;
+        break;
+      } else {
+        reserva = {
+          cliente: {} as ClienteOptions,
+          estado: disponibilidadEncontrada.estado,
+          evento: disponibilidadEncontrada.evento,
+          fechaFin: disponibilidadEncontrada.fechaFin,
+          fechaInicio: disponibilidadEncontrada.fechaInicio,
+          idcarrito: null,
+          idusuario: usuario.id,
+          nombreusuario: usuario.nombre,
+          servicio: [servicio]
+        }
+        disponibilidadBloquear.push(reserva);
+      }
+    }
+
+    if (disponible || (!reserva && contador > 0)) {
+      this.disponibilidadBloquear.push.apply(this.disponibilidadBloquear, disponibilidadBloquear);
+      this.cantidad++;
+      this.carrito.push({
+        servicio: [servicio],
+        fechaInicio: disponibilidadBloquear[0].fechaInicio,
+        fechaFin: disponibilidadBloquear[disponibilidadBloquear.length - 1].fechaFin,
+        cliente: {} as ClienteOptions,
+        estado: this.constantes.ESTADOS_RESERVA.RESERVADO,
+        evento: this.constantes.EVENTOS.OTRO,
+        idcarrito: this.idcarrito,
+        idusuario: usuario.id,
+        nombreusuario: usuario.nombre
+      });
+      ultimoHorario = disponibilidadBloquear[disponibilidadBloquear.length - 1].fechaFin;
+      this.totalServicios += Number(servicio.valor);
+      this.guardar(usuario);
+    } else if (contador === 0) {
+      this.genericAlert('Error al reservar', 'La cita se cruza con otra reserva, la reserva ha sido cancelada');
+      this.navCtrl.pop();
+    } else {
+      this.genericAlert('Error al reservar', 'La cita se cruza con otra reserva, la reserva ha sido cancelada');
+      this.navCtrl.pop();
+    }
   }
 
   agregar(servicio: ServicioOptions) {
@@ -180,7 +370,7 @@ export class ReservaPage {
       if (!data || !data[0]) {
         this.alertCtrl.create({
           title: 'Reservar',
-          message: 'No es posible continuar, ya que no hay usuarios disponibles a esta hora',
+          message: 'No es posible continuar, no hay usuarios disponibles a esta hora',
           buttons: [{
             text: 'Ok',
             handler: () => {
@@ -197,7 +387,7 @@ export class ReservaPage {
 
         usuarioModal.onDidDismiss(data => {
           if (data) {
-            this.usuario = data;
+            this.reservar(data, servicio);
           } else {
             this.viewCtrl.dismiss();
           }

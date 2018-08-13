@@ -149,4 +149,8 @@ export class UsuarioPage {
     this.viewCtrl.dismiss(usuario);
   }
 
+  cerrar(){
+    this.viewCtrl.dismiss();
+  }
+
 }
