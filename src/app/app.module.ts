@@ -12,8 +12,12 @@ import { AngularFireAuthModule } from 'angularfire2/auth';
 import { firebaseConfig } from './config.firebase';
 
 import { MyApp } from './app.component';
-import { HomePage } from '../pages/home/home';
 import { DatePickerModule } from 'ionic3-datepicker';
+import { HomePage } from '../pages/home/home';
+import { AngularFireStorageModule } from 'angularfire2/storage';
+import { Camera } from '@ionic-native/camera';
+import { UsuarioProvider } from '../providers/usuario';
+import { LogueoPageModule } from '../pages/logueo/logueo.module';
 
 @NgModule({
   declarations: [
@@ -26,7 +30,9 @@ import { DatePickerModule } from 'ionic3-datepicker';
     AngularFireModule.initializeApp(firebaseConfig),
     AngularFirestoreModule.enablePersistence(),
     AngularFireAuthModule,
-    DatePickerModule
+    AngularFireStorageModule,
+    DatePickerModule,
+    LogueoPageModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -34,9 +40,11 @@ import { DatePickerModule } from 'ionic3-datepicker';
     HomePage
   ],
   providers: [
+    Camera,
     StatusBar,
     SplashScreen,
     Geolocation,
+    UsuarioProvider,
     { provide: ErrorHandler, useClass: IonicErrorHandler }
   ]
 })

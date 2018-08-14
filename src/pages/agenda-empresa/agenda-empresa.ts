@@ -238,7 +238,7 @@ export class AgendaEmpresaPage {
         if (moment(fechaFinReserva).add(-60, 'minutes').isSameOrAfter(ahora)) {
           let usuariosDisponibles = this.updateUsuariosDisponible(dataDisponibilidadUsuarios, fechaInicioReserva);
           let reserva: DisponibilidadOptions;
-          if (usuariosDisponibles[0]) {
+          if (usuariosDisponibles && usuariosDisponibles[0]) {
             reserva = {
               fechaInicio: fechaInicioReserva,
               fechaFin: fechaFinReserva,

@@ -1,0 +1,125 @@
+<!--
+  Generated template for the DetalleUsuarioPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Datos de usuario</ion-title>
+    <ion-buttons start>
+      <button ion-button (click)="cerrar()">
+        <ion-icon name="md-close"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <ion-card>
+    <ion-card-content>
+      <form [formGroup]="todo">
+        <ion-item>
+          <ion-label floating>Usuario:</ion-label>
+          <ion-input type="text" formControlName="id" maxlength="100"></ion-input>
+        </ion-item>
+
+        <ion-item color="danger" *ngIf="todo.controls.id.errors && todo.controls.id.touched">
+          <p>El nombre de usuario no es válido</p>
+        </ion-item>
+
+        <ion-item>
+          <ion-label floating>Nombre completo:</ion-label>
+          <ion-input type="text" formControlName="nombre" maxlength="100"></ion-input>
+        </ion-item>
+
+        <ion-item color="danger" *ngIf="todo.controls.nombre.errors && todo.controls.nombre.touched">
+          <p>El nombre no es válido</p>
+        </ion-item>
+
+        <ion-item>
+          <ion-label floating>Celular:</ion-label>
+          <ion-input type="tel" formControlName="telefono" maxlength="10"></ion-input>
+        </ion-item>
+
+        <ion-item color="danger" *ngIf="todo.controls.telefono.errors && todo.controls.telefono.touched">
+          <p>El celular no es válido</p>
+        </ion-item>
+
+        <ion-item>
+          <ion-label floating>Email:</ion-label>
+          <ion-input type="email" formControlName="correoelectronico" maxlength="50" [disabled]="!nuevo"></ion-input>
+        </ion-item>
+
+        <ion-item color="danger" *ngIf="todo.controls.correoelectronico.errors && todo.controls.correoelectronico.touched">
+          <p>El email no es válido</p>
+        </ion-item>
+
+        <ion-item *ngIf="nuevo">
+          <ion-label floating>Constraseña:</ion-label>
+          <ion-input type="password" formControlName="clave"></ion-input>
+        </ion-item>
+
+        <ion-item color="danger" *ngIf="nuevo && todo.controls.clave.errors && todo.controls.clave.touched">
+          <p>La contraseña no es válida</p>
+        </ion-item>
+
+        <ion-item *ngIf="nuevo">
+          <ion-label floating>Repita la constraseña:</ion-label>
+          <ion-input type="password" formControlName="rclave"></ion-input>
+        </ion-item>
+
+        <ion-item color="danger" *ngIf="nuevo && todo.controls.rclave.errors && todo.controls.rclave.touched">
+          <p>La contraseña no es válida</p>
+        </ion-item>
+
+        <ion-item color="danger" *ngIf="nuevo && todo.controls.rclave.touched && todo.value.clave !== todo.value.rclave">
+          <p>Las contraseñas no coinciden</p>
+        </ion-item>
+
+        <ion-item>
+          <img *ngIf="todo.controls.imagen.value" [src]="todo.controls.imagen.value" style="max-width:300px;" />
+        </ion-item>
+
+        <ion-item *ngIf="!mobile">
+          <ion-input type="file" accept="image/*" (change)="seleccionarImagen($event)" [disabled]="!todo.value.correoelectronico"></ion-input>
+        </ion-item>
+
+        <ion-item style="height: 100px" *ngIf="mobile">
+          <ion-fab bottom center [disabled]="!todo.value.correoelectronico">
+            <button ion-fab mini>
+              <ion-icon name="image"></ion-icon>
+            </button>
+            <ion-fab-list side="left">
+              <button ion-fab [disabled]="!todo.value.correoelectronico" (tap)="sacarFoto()">
+                <ion-icon name="camera"></ion-icon>
+              </button>
+              <button ion-fab [disabled]="!todo.value.correoelectronico" (tap)="cargarImagen()">
+                <ion-icon name="cloud-upload"></ion-icon>
+              </button>
+            </ion-fab-list>
+          </ion-fab>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>
+            <h5>Acepto <a>términos y condiciones de uso y privacidad</a></h5>
+          </ion-label>
+          <ion-checkbox formControlName="terminos"></ion-checkbox>
+        </ion-item>
+
+        <ion-item color="danger" *ngIf="nuevo && todo.controls.terminos.touched && !todo.value.terminos">
+          <p>Debes aceptar los términos y condiciones de uso y privacidad</p>
+        </ion-item>
+
+        <button ion-button type="submit" icon-right block color="secondary" [disabled]="todo.invalid || !todo.value.terminos || todo.value.clave !== todo.value.rclave"
+          (click)="guardar()">Guardar
+          <ion-icon name="checkmark"></ion-icon>
+        </button>
+      </form>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

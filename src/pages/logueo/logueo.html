@@ -18,18 +18,47 @@
 
   <ion-card>
     <ion-card-content>
-      <button ion-button ion-left block>
+      <ion-list no-lines>
+        <form [formGroup]="todo">
+          <ion-item>
+            <ion-label floating>Usuario</ion-label>
+            <ion-input type="email" formControlName="username"></ion-input>
+          </ion-item>
+
+          <ion-item *ngIf="todo.controls.username.errors && todo.controls.username.touched">
+            <p ion-text style="background-color: #f53d3d; color: #ffffff">El correo electrónico no es válido</p>
+          </ion-item>
+
+          <ion-item>
+            <ion-label floating>Contraseña</ion-label>
+            <ion-input type="password" formControlName="password"></ion-input>
+          </ion-item>
+
+          <ion-item *ngIf="todo.controls.password.errors && todo.controls.password.touched">
+            <p ion-text style="background-color: #f53d3d; color: #ffffff">La contraseña no es válida</p>
+          </ion-item>
+
+          <ion-item>
+            <p style="color: #ffffff">Si olvídaste la contraseña, has clic
+              <a>aquí</a>.</p>
+          </ion-item>
+          <ion-buttons>
+            <button ion-button block outline style="background: #ffffff" (click)="logueo()">Ingresa</button>
+            <button ion-button color="secondary" block outline style="background: #ffffff" (click)="registrar()">Regístrate</button>
+          </ion-buttons>
+        </form>
+      </ion-list>
+      <hr/>
+      <br/>
+      <button ion-button icon-start block (click)="loguearFacebook()">
         <ion-icon name="logo-facebook"></ion-icon>
-        <div>Logueate con facebook</div>
+        Ingresa con facebook
       </button>
       <b style="color: #ffffff">ó</b>
-      <button ion-button ion-left block color="danger">
+      <button ion-button icon-start block color="danger" (click)="loguearGoogle()">
         <ion-icon name="logo-google"></ion-icon>
-        <div>Logueate con google</div>
+        Ingresa con google
       </button>
-      <!--<p>¿Olvidaste tu contraseña?
-          <a>Entra aquí</a>
-        </p>-->
     </ion-card-content>
   </ion-card>
 </ion-content>

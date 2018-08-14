@@ -2,17 +2,19 @@ import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams, AlertController, ModalController, ViewController } from 'ionic-angular';
 import { DisponibilidadOptions } from '../../interfaces/disponibilidad-options';
 import { ServicioOptions } from '../../interfaces/servicio-options';
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '../../../node_modules/angularfire2/firestore';
+import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from 'angularfire2/firestore';
 import { IndiceOptions } from '../../interfaces/indice-options';
 import { UsuarioOptions } from '../../interfaces/usuario-options';
 import { EmpresaOptions } from '../../interfaces/empresa-options';
 import moment from 'moment';
-import { Observable } from '../../../node_modules/rxjs';
+import { Observable } from 'rxjs';
 import * as DataProvider from '../../providers/constants';
 import { ReservaOptions } from '../../interfaces/reserva-options';
-import { ClienteOptions } from '../../interfaces/cliente-options';
 import { TotalesServiciosOptions } from '../../interfaces/totales-servicios-options';
 import { TotalDiarioOptions } from '../../interfaces/total-diario-options';
+import { UsuarioProvider } from '../../providers/usuario';
+import { ReservaClienteOptions } from '../../interfaces/reserva-cliente-options';
+import { FavoritoOptions } from '../../interfaces/favorito-options';
 
 /**
  * Generated class for the ReservaPage page.
@@ -32,7 +34,7 @@ export class ReservaPage {
   disponibilidad: DisponibilidadOptions;
   horario: DisponibilidadOptions[];
   servicios: ServicioOptions[];
-  idempresa: string;
+  empresa: EmpresaOptions;
   filePathEmpresa: string;
   empresaDoc: AngularFirestoreDocument<EmpresaOptions>;
   idcarrito: number;
@@ -44,6 +46,11 @@ export class ReservaPage {
   carrito: ReservaOptions[] = [];
   totalServicios: number = 0;
   disponibilidadDoc: AngularFirestoreDocument<ReservaOptions>;
+  usuario: UsuarioOptions;
+  filePathServicio: string;
+  servicioDoc: AngularFirestoreDocument<ReservaClienteOptions>;
+  filePathEmpresaServicio: string;
+  empresaServicioDoc: AngularFirestoreDocument<FavoritoOptions>;
 
   constructor(
     public navCtrl: NavController,
@@ -51,36 +58,38 @@ export class ReservaPage {
     private afs: AngularFirestore,
     public alertCtrl: AlertController,
     public modalCtrl: ModalController,
-    public viewCtrl: ViewController
+    public viewCtrl: ViewController,
+    public usuarioServicio: UsuarioProvider
   ) {
     this.disponibilidad = this.navParams.get('disponibilidad');
-    this.idempresa = this.navParams.get('idempresa');
+    let idempresa = this.navParams.get('idempresa');
     this.horario = this.navParams.get('horario');
-    this.filePathEmpresa = 'negocios/' + this.idempresa;
+    this.filePathEmpresa = 'negocios/' + idempresa;
+    this.filePathServicio = this.usuarioServicio.getFilePathCliente() + '/servicios/' + this.disponibilidad.fechaInicio.getTime().toString();
+    this.servicioDoc = this.afs.doc(this.filePathServicio);
     this.empresaDoc = this.afs.doc<EmpresaOptions>(this.filePathEmpresa);
     this.usuariosCollection = this.empresaDoc.collection('/usuarios/');
-    this.loadIdCarrito();
     this.updateEmpresa();
     this.updateServicios();
-  }
-
-  genericErrorAlert() {
-    this.alertCtrl.create({
-      title: 'Ha ocurrido un error',
-      message: 'La empresa no existe',
-      buttons: [{
-        text: 'OK',
-        role: 'cancel'
-      }]
-    }).present();
   }
 
   updateEmpresa() {
     this.empresaDoc.valueChanges().subscribe(data => {
       if (data) {
+        this.empresa = data;
         this.tiempoDisponibilidad = data.configuracion ? data.configuracion.tiempoDisponibilidad : 30;
+        this.filePathEmpresaServicio = this.usuarioServicio.getFilePathCliente() + '/negocios/' + this.empresa.id;
+        this.empresaServicioDoc = this.afs.doc<FavoritoOptions>(this.filePathServicio);
+        this.loadIdCarrito();
       } else {
-        this.genericErrorAlert();
+        this.alertCtrl.create({
+          title: 'Ha ocurrido un error',
+          message: 'La empresa no existe',
+          buttons: [{
+            text: 'OK',
+            role: 'cancel'
+          }]
+        }).present();
         this.navCtrl.pop();
       }
     });
@@ -288,11 +297,37 @@ export class ReservaPage {
                 batch.set(totalesServiciosUsuarioDoc.ref, totalServicioUsuario);
               }
 
-              batch.commit().then(() => {
-                this.genericAlert('Reserva registrada', 'Se ha registrado la reserva');
-              }).catch(err => this.genericAlert('Error', err));
+              let reservaCliente: ReservaClienteOptions = {
+                estado: reservaNueva.estado,
+                fechaFin: reservaNueva.fechaFin,
+                fechaInicio: reservaNueva.fechaInicio,
+                idcarrito: reservaNueva.idcarrito,
+                servicio: reservaNueva.servicio,
+                usuario: this.usuario
+              };
 
-              this.navCtrl.pop();
+              batch.set(this.servicioDoc.ref, reservaCliente);
+
+              this.empresaServicioDoc.valueChanges().subscribe(data => {
+                let cantidad = 1;
+                if (data) {
+                  cantidad += data.servicios;
+                }
+
+                let favorito: FavoritoOptions = {
+                  actualizacion: new Date(),
+                  empresa: this.empresa,
+                  servicios: cantidad
+                };
+
+                batch.set(this.empresaServicioDoc.ref, favorito);
+
+                batch.commit().then(() => {
+                  this.genericAlert('Reserva registrada', 'Se ha registrado la reserva');
+                }).catch(err => this.genericAlert('Error', err));
+
+                this.navCtrl.pop();
+              });
             });
           });
         });
@@ -303,9 +338,9 @@ export class ReservaPage {
     });
   }
 
-  reservar(usuario: UsuarioOptions, servicio: ServicioOptions) {
+  reservar(servicio: ServicioOptions) {
     let dia = moment(this.disponibilidad.fechaInicio).startOf('day').toDate();
-    this.disponibilidadDoc = this.usuariosCollection.doc(usuario.id).collection('disponibilidades').doc(dia.getTime().toString());
+    this.disponibilidadDoc = this.usuariosCollection.doc(this.usuario.id).collection('disponibilidades').doc(dia.getTime().toString());
     let ultimoHorario = this.disponibilidad.fechaInicio;
 
     let disponibilidadBloquear: ReservaOptions[] = [];
@@ -325,14 +360,14 @@ export class ReservaPage {
         break;
       } else {
         reserva = {
-          cliente: {} as ClienteOptions,
+          cliente: this.usuarioServicio.getUsuario(),
           estado: disponibilidadEncontrada.estado,
           evento: disponibilidadEncontrada.evento,
           fechaFin: disponibilidadEncontrada.fechaFin,
           fechaInicio: disponibilidadEncontrada.fechaInicio,
           idcarrito: null,
-          idusuario: usuario.id,
-          nombreusuario: usuario.nombre,
+          idusuario: this.usuario.id,
+          nombreusuario: this.usuario.nombre,
           servicio: [servicio]
         }
         disponibilidadBloquear.push(reserva);
@@ -346,16 +381,16 @@ export class ReservaPage {
         servicio: [servicio],
         fechaInicio: disponibilidadBloquear[0].fechaInicio,
         fechaFin: disponibilidadBloquear[disponibilidadBloquear.length - 1].fechaFin,
-        cliente: {} as ClienteOptions,
+        cliente: this.usuarioServicio.getUsuario(),
         estado: this.constantes.ESTADOS_RESERVA.RESERVADO,
         evento: this.constantes.EVENTOS.OTRO,
         idcarrito: this.idcarrito,
-        idusuario: usuario.id,
-        nombreusuario: usuario.nombre
+        idusuario: this.usuario.id,
+        nombreusuario: this.usuario.nombre
       });
       ultimoHorario = disponibilidadBloquear[disponibilidadBloquear.length - 1].fechaFin;
       this.totalServicios += Number(servicio.valor);
-      this.guardar(usuario);
+      this.guardar(this.usuario);
     } else if (contador === 0) {
       this.genericAlert('Error al reservar', 'La cita se cruza con otra reserva, la reserva ha sido cancelada');
       this.navCtrl.pop();
@@ -382,12 +417,13 @@ export class ReservaPage {
         let usuarioModal = this.modalCtrl.create('UsuarioPage', {
           disponibilidad: this.disponibilidad,
           servicio: servicio,
-          idempresa: this.idempresa
+          idempresa: this.empresa.id
         });
 
         usuarioModal.onDidDismiss(data => {
           if (data) {
-            this.reservar(data, servicio);
+            this.usuario = data;
+            this.reservar(servicio);
           } else {
             this.viewCtrl.dismiss();
           }
