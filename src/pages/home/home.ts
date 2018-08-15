@@ -3,6 +3,8 @@ import { NavController } from 'ionic-angular';
 import { AngularFirestore, AngularFirestoreCollection } from 'angularfire2/firestore';
 import { EmpresaOptions } from '../../interfaces/empresa-options';
 import { Geolocation } from '@ionic-native/geolocation';
+import { UsuarioProvider } from '../../providers/usuario';
+import { FavoritoOptions } from '../../interfaces/favorito-options';
 
 declare var google: any;
 
@@ -15,15 +17,31 @@ export class HomePage {
   filePathEmpresas: string;
   negociosCollection: AngularFirestoreCollection<EmpresaOptions>;
   empresasEncontradas: EmpresaOptions[];
+  filePathFavoritos: string;
+  favoritosCollection: AngularFirestoreCollection<FavoritoOptions>;
+  empresasFavoritas: EmpresaOptions[];
 
   constructor(
     public navCtrl: NavController,
     private afs: AngularFirestore,
-    private geolocation: Geolocation
+    private geolocation: Geolocation,
+    public usuarioServicio: UsuarioProvider
   ) {
     this.filePathEmpresas = 'negocios';
     this.negociosCollection = this.afs.collection<EmpresaOptions>(this.filePathEmpresas);
+    this.filePathFavoritos = this.usuarioServicio.getFilePathCliente() + '/negocios';
+    this.favoritosCollection = this.afs.collection<FavoritoOptions>(this.filePathFavoritos, ref => ref.orderBy('servicios', 'desc').limit(5));
+    this.loadFavoritos();
     this.loadNegocios();
+  }
+
+  loadFavoritos() {
+    this.favoritosCollection.valueChanges().subscribe(data => {
+      if (data) {
+        let empresasFavoritas = data.map(favorito => favorito.empresa);
+        this.empresasFavoritas = empresasFavoritas;
+      }
+    });
   }
 
   loadNegocios() {
@@ -32,7 +50,8 @@ export class HomePage {
         let location = new google.maps.LatLng(data.coords.latitude, data.coords.longitude);
         this.negociosCollection = this.afs.collection<EmpresaOptions>(this.filePathEmpresas);
         this.negociosCollection.valueChanges().subscribe(data => {
-          this.empresasEncontradas = data.sort((a, b) => {
+          this.empresasEncontradas = data.filter(empresa => empresa.id && empresa.id !== 'DIS');
+          this.empresasEncontradas = this.empresasEncontradas.sort((a, b) => {
             let latLnga = a.direccion.latLng;
             let loca = new google.maps.LatLng(latLnga.latitude, latLnga.longitude);
             let latLngb = b.direccion.latLng;

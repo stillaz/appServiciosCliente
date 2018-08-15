@@ -79,7 +79,7 @@ export class ReservaPage {
         this.empresa = data;
         this.tiempoDisponibilidad = data.configuracion ? data.configuracion.tiempoDisponibilidad : 30;
         this.filePathEmpresaServicio = this.usuarioServicio.getFilePathCliente() + '/negocios/' + this.empresa.id;
-        this.empresaServicioDoc = this.afs.doc<FavoritoOptions>(this.filePathServicio);
+        this.empresaServicioDoc = this.afs.doc<FavoritoOptions>(this.filePathEmpresaServicio);
         this.loadIdCarrito();
       } else {
         this.alertCtrl.create({
@@ -308,10 +308,10 @@ export class ReservaPage {
 
               batch.set(this.servicioDoc.ref, reservaCliente);
 
-              this.empresaServicioDoc.valueChanges().subscribe(data => {
+              this.empresaServicioDoc.ref.get().then(data => {
                 let cantidad = 1;
-                if (data) {
-                  cantidad += data.servicios;
+                if (data.exists) {
+                  cantidad += Number(data.get('servicios'));
                 }
 
                 let favorito: FavoritoOptions = {
@@ -326,7 +326,7 @@ export class ReservaPage {
                   this.genericAlert('Reserva registrada', 'Se ha registrado la reserva');
                 }).catch(err => this.genericAlert('Error', err));
 
-                this.navCtrl.pop();
+                this.navCtrl.popToRoot();
               });
             });
           });

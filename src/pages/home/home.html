@@ -8,8 +8,19 @@
         </ion-label>
       </ion-item-divider>
 
-      <ion-item>
+      <ion-item *ngFor="let empresa of empresasFavoritas" (click)="irA(empresa.id)" [ngSwitch]="empresa.negocio">
+        <ion-thumbnail item-start>
+          <img [src]="empresa.imagen" />
+        </ion-thumbnail>
+        <h2>
+          <b>{{empresa.nombre}}</b>
+        </h2>
+        <p>{{empresa.direccion.direccion}}</p>
+        <p>Tel: {{empresa.telefono}}</p>
 
+        <ion-avatar *ngSwitchCase="'Barbería'" item-end>
+          <img src="assets/imgs/barberia-logo.png" />
+        </ion-avatar>
       </ion-item>
     </ion-item-group>
 
