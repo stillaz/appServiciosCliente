@@ -1,3 +1,34 @@
+<ion-header>
+
+  <ion-navbar color="light">
+    <button ion-button menuToggle icon-only>
+      <ion-icon name='menu'></ion-icon>
+    </button>
+  </ion-navbar>
+</ion-header>
+
+<ion-menu [content]="contenta">
+  <ion-header>
+    <ion-toolbar color="primary">
+      <ion-title>{{usuarioServicio.getUsuario().nombre}}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content>
+    <ion-list>
+      <button menuClose ion-item *ngFor="let page of pages" #item icon-start (click)="irA(page.componente)">
+        <ion-icon [name]="page.icono"></ion-icon>
+        {{page.nombre}}
+      </button>
+
+      <button menuClose ion-item icon-start (click)="salir()">
+        <ion-icon name="exit"></ion-icon>
+        Salir
+      </button>
+    </ion-list>
+  </ion-content>
+</ion-menu>
+
 <ion-content padding class="background">
   <ion-list>
     <ion-item-group>
@@ -8,7 +39,7 @@
         </ion-label>
       </ion-item-divider>
 
-      <ion-item *ngFor="let empresa of empresasFavoritas" (click)="irA(empresa.id)" [ngSwitch]="empresa.negocio">
+      <ion-item *ngFor="let empresa of empresasFavoritas" (click)="reservar(empresa.id)" [ngSwitch]="empresa.negocio">
         <ion-thumbnail item-start>
           <img [src]="empresa.imagen" />
         </ion-thumbnail>
@@ -32,7 +63,7 @@
         </ion-label>
       </ion-item-divider>
 
-      <ion-item *ngFor="let empresa of empresasEncontradas" (click)="irA(empresa.id)" [ngSwitch]="empresa.negocio">
+      <ion-item *ngFor="let empresa of empresasEncontradas" (click)="reservar(empresa.id)" [ngSwitch]="empresa.negocio">
         <ion-thumbnail item-start>
           <img [src]="empresa.imagen" />
         </ion-thumbnail>
@@ -49,3 +80,5 @@
     </ion-item-group>
   </ion-list>
 </ion-content>
+
+<ion-nav #contenta></ion-nav>

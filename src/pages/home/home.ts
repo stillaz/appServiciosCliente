@@ -20,6 +20,9 @@ export class HomePage {
   filePathFavoritos: string;
   favoritosCollection: AngularFirestoreCollection<FavoritoOptions>;
   empresasFavoritas: EmpresaOptions[];
+  pages: any[] = [
+    { nombre: 'Mi perfil', componente: 'PendientePage', icono: 'contact' }
+  ]
 
   constructor(
     public navCtrl: NavController,
@@ -76,10 +79,18 @@ export class HomePage {
     });
   }
 
-  irA(idempresa: string) {
+  reservar(idempresa: string) {
     this.navCtrl.push('AgendaEmpresaPage', {
       idempresa: idempresa
     });
+  }
+
+  irA(pagina) {
+    this.navCtrl.push(pagina);
+  }
+
+  salir() {
+    this.usuarioServicio.signOut();
   }
 
 }

@@ -7,8 +7,8 @@ import { LogueoPage } from '../pages/logueo/logueo';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { ClienteOptions } from '../interfaces/cliente-options';
 import { AngularFirestore } from 'angularfire2/firestore';
-import { HomePage } from '../pages/home/home';
 import { UsuarioProvider } from '../providers/usuario';
+import { TabsPage } from '../pages/tabs/tabs';
 @Component({
   templateUrl: 'app.html'
 })
@@ -27,7 +27,7 @@ export class MyApp {
           clienteDoc.valueChanges().subscribe(data => {
             if (data) {
               this.usuarioService.setUsuario(data);
-              this.rootPage = HomePage;
+              this.rootPage = TabsPage;
             } else {
               let usuario: ClienteOptions = {
                 correoelectronico: user.email,
@@ -41,7 +41,7 @@ export class MyApp {
             }
           });
         } else {
-          this.rootPage = 'LogueoPage';
+          this.rootPage = LogueoPage;
         }
       });
     });

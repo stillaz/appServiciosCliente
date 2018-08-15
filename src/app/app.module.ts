@@ -18,6 +18,8 @@ import { AngularFireStorageModule } from 'angularfire2/storage';
 import { Camera } from '@ionic-native/camera';
 import { UsuarioProvider } from '../providers/usuario';
 import { LogueoPageModule } from '../pages/logueo/logueo.module';
+import { TabsPageModule } from '../pages/tabs/tabs.module';
+import { CitaPageModule } from '../pages/cita/cita.module';
 
 @NgModule({
   declarations: [
@@ -31,8 +33,10 @@ import { LogueoPageModule } from '../pages/logueo/logueo.module';
     AngularFirestoreModule.enablePersistence(),
     AngularFireAuthModule,
     AngularFireStorageModule,
+    CitaPageModule,
     DatePickerModule,
-    LogueoPageModule
+    LogueoPageModule,
+    TabsPageModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [

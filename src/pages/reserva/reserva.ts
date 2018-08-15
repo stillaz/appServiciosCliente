@@ -303,7 +303,8 @@ export class ReservaPage {
                 fechaInicio: reservaNueva.fechaInicio,
                 idcarrito: reservaNueva.idcarrito,
                 servicio: reservaNueva.servicio,
-                usuario: this.usuario
+                usuario: this.usuario,
+                empresa: this.empresa
               };
 
               batch.set(this.servicioDoc.ref, reservaCliente);

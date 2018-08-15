@@ -1,5 +1,6 @@
 import { ServicioOptions } from "./servicio-options";
 import { UsuarioOptions } from "./usuario-options";
+import { EmpresaOptions } from "./empresa-options";
 
 export interface ReservaClienteOptions {
     fechaInicio: any,
@@ -7,5 +8,6 @@ export interface ReservaClienteOptions {
     estado: string,
     idcarrito: number,
     servicio: ServicioOptions[],
-    usuario: UsuarioOptions
+    usuario: UsuarioOptions,
+    empresa: EmpresaOptions
 }

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ClienteOptions } from '../interfaces/cliente-options';
+import { AngularFireAuth } from 'angularfire2/auth';
 
 /*
   Generated class for the EmpresaProvider provider.
@@ -12,7 +13,7 @@ export class UsuarioProvider {
 
   private usuario: ClienteOptions;
 
-  constructor() { }
+  constructor(private afa: AngularFireAuth) { }
 
   getUsuario() {
     return this.usuario;
@@ -24,6 +25,10 @@ export class UsuarioProvider {
 
   getFilePathCliente() {
     return 'clientes/' + this.usuario.correoelectronico;
+  }
+
+  signOut() {
+    this.afa.auth.signOut();
   }
 
 }

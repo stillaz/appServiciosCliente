@@ -1,0 +1,82 @@
+<!--
+  Generated template for the CitaPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Mis citas</ion-title>
+
+    <ion-segment [(ngModel)]="modo" (ionChange)="updateSeleccionado()">
+      <ion-segment-button value="pendientes">
+        Pendientes
+      </ion-segment-button>
+
+      <ion-segment-button value="finalizados">
+        Finalizados
+      </ion-segment-button>
+
+      <ion-segment-button value="cancelados">
+        Cancelados
+      </ion-segment-button>
+    </ion-segment>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding [ngSwitch]="modo">
+  <ion-list *ngSwitchCase="'pendientes'">
+    <ion-item-group *ngFor="let grupo of pendientes" [ngSwitch]="grupo.empresa.negocio">
+      <ion-item-divider sticky>
+        <ion-item color="light">
+          <ion-avatar *ngSwitchCase="'Barbería'" item-start>
+            <img src="assets/imgs/barberia-logo.png" />
+          </ion-avatar>
+          <b>{{grupo.empresa.negocio}} {{grupo.empresa.nombre}}</b>
+        </ion-item>
+      </ion-item-divider>
+
+      <ion-card>
+        <img [src]="grupo.empresa.imagen" />
+        <ion-card-content>
+          <b>Teléfono:</b> {{grupo.empresa.telefono}}
+          <br/> <b>Dirección:</b> {{grupo.empresa.direccion.direccion}}
+          <br/>
+          <ion-buttons>
+            <button ion-button color="secondary" small icon-start> <ion-icon name="locate"></ion-icon>Ver ubicación
+            </button>
+          </ion-buttons>
+          <br/>
+          <ion-list>
+            <h2 style="text-align: center"><b>Citas</b></h2>
+            <ion-item color="light" *ngFor="let reserva of grupo.reservas" [attr.track]="reserva.reserva.estado | lowercase" [id]="reserva.reserva.evento">
+              <ion-avatar *ngIf="reserva.reserva.usuario && reserva.reserva.usuario.imagen" item-start>
+                <img [src]="reserva.reserva.usuario.imagen" />
+              </ion-avatar>
+              <p>
+                <b>{{reserva.reserva.fechaInicio.toDate() | date: 'mediumDate'}}</b> - {{reserva.reserva.fechaInicio.toDate()
+                | date: 'hh:mm a'}} a {{reserva.reserva.fechaFin.toDate() | date: 'hh:mm a'}}
+              </p>
+              <p>
+                <b>Servicio:</b> {{reserva.reserva.servicio[0].nombre}} - $ {{reserva.reserva.servicio[0].valor}}
+                <br/>
+                <b>Usuario:</b> {{reserva.reserva.usuario.nombre}} - {{reserva.reserva.usuario.telefono}}
+              </p>
+              <ion-row>
+                <ion-col>
+                  <ion-note>{{reserva.dentroDe}}</ion-note>
+                </ion-col>
+                <ion-col style="text-align: end">
+                  <button ion-button small color="danger" icon-start><ion-icon name="close"></ion-icon>Cancelar</button>
+                </ion-col>
+              </ion-row>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    </ion-item-group>
+  </ion-list>
+</ion-content>
