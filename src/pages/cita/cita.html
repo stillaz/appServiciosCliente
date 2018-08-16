@@ -7,23 +7,25 @@
 <ion-header>
 
   <ion-navbar>
+    <button ion-button menuToggle icon-only>
+      <ion-icon name='menu'></ion-icon>
+    </button>
     <ion-title>Mis citas</ion-title>
-
-    <ion-segment [(ngModel)]="modo" (ionChange)="updateSeleccionado()">
-      <ion-segment-button value="pendientes">
-        Pendientes
-      </ion-segment-button>
-
-      <ion-segment-button value="finalizados">
-        Finalizados
-      </ion-segment-button>
-
-      <ion-segment-button value="cancelados">
-        Cancelados
-      </ion-segment-button>
-    </ion-segment>
   </ion-navbar>
 
+  <ion-segment [(ngModel)]="modo" (ionChange)="updateSeleccionado()">
+    <ion-segment-button value="pendientes">
+      Pendientes
+    </ion-segment-button>
+
+    <ion-segment-button value="finalizados">
+      Finalizados
+    </ion-segment-button>
+
+    <ion-segment-button value="cancelados">
+      Cancelados
+    </ion-segment-button>
+  </ion-segment>
 </ion-header>
 
 
@@ -44,12 +46,9 @@
         <ion-card-content>
           <b>Teléfono:</b> {{grupo.empresa.telefono}}
           <br/> <b>Dirección:</b> {{grupo.empresa.direccion.direccion}}
-          <br/>
-          <ion-buttons>
-            <button ion-button color="secondary" small icon-start> <ion-icon name="locate"></ion-icon>Ver ubicación
-            </button>
-          </ion-buttons>
-          <br/>
+          <button ion-button color="secondary" small icon-start clear> <ion-icon name="locate"></ion-icon>Mapa
+          </button>
+          <hr/>
           <ion-list>
             <h2 style="text-align: center"><b>Citas</b></h2>
             <ion-item color="light" *ngFor="let reserva of grupo.reservas" [attr.track]="reserva.reserva.estado | lowercase" [id]="reserva.reserva.evento">
@@ -65,18 +64,35 @@
                 <br/>
                 <b>Usuario:</b> {{reserva.reserva.usuario.nombre}} - {{reserva.reserva.usuario.telefono}}
               </p>
-              <ion-row>
-                <ion-col>
-                  <ion-note>{{reserva.dentroDe}}</ion-note>
-                </ion-col>
-                <ion-col style="text-align: end">
-                  <button ion-button small color="danger" icon-start><ion-icon name="close"></ion-icon>Cancelar</button>
-                </ion-col>
-              </ion-row>
+              <ion-note>{{reserva.dentroDe}}</ion-note>
+              <button ion-button small color="danger" icon-start clear (click)="cancelar(reserva.reserva)">
+                <ion-icon name="close"></ion-icon>
+                Cancelar cita
+              </button>
             </ion-item>
           </ion-list>
         </ion-card-content>
       </ion-card>
     </ion-item-group>
+  </ion-list>
+
+  <ion-list *ngSwitchCase="'finalizados'">
+    <ion-item *ngFor="let reserva of finalizados" (click)="ver(reserva)">
+      <ion-avatar *ngIf="reserva.empresa.imagen">
+        <img [src]="reserva.empresa.imagen" />
+      </ion-avatar>
+      <ion-note>{{reserva.empresa.nombre}}</ion-note>
+      <p><b>Cancelado:</b> {{reserva.fechaActualizacion.toDate() | date: 'medium'}}</p>
+    </ion-item>
+  </ion-list>
+
+  <ion-list *ngSwitchCase="'cancelados'">
+    <ion-item *ngFor="let reserva of cancelados" (click)="ver(reserva)">
+      <ion-avatar *ngIf="reserva.empresa.imagen">
+        <img [src]="reserva.empresa.imagen" />
+      </ion-avatar>
+      <ion-note>{{reserva.empresa.nombre}}</ion-note>
+      <p><b>Cancelado:</b> {{reserva.fechaActualizacion.toDate() | date: 'medium'}}</p>
+    </ion-item>
   </ion-list>
 </ion-content>

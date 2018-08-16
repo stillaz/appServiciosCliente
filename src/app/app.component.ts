@@ -8,14 +8,28 @@ import { AngularFireAuth } from 'angularfire2/auth';
 import { ClienteOptions } from '../interfaces/cliente-options';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { UsuarioProvider } from '../providers/usuario';
-import { TabsPage } from '../pages/tabs/tabs';
+import { HomePage } from '../pages/home/home';
+import { CitaPage } from '../pages/cita/cita';
+import { FavoritoPage } from '../pages/favorito/favorito';
+
 @Component({
   templateUrl: 'app.html'
 })
 export class MyApp {
   rootPage: any = LogueoPage;
+  pages: any[];
 
-  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, private afa: AngularFireAuth, private afs: AngularFirestore, public usuarioService: UsuarioProvider) {
+  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, private afa: AngularFireAuth, private afs: AngularFirestore, public usuarioServicio: UsuarioProvider) {
+    this.pages = [
+      { title: 'Inicio', component: HomePage, icon: 'home', selected: true },
+      { title: 'Mi cuenta', component: HomePage, icon: 'contact', selected: false },
+      { title: 'Mis favoritos', component: FavoritoPage, icon: 'heart', selected: false },
+      { title: 'Mis citas', component: CitaPage, icon: 'bookmark', selected: false },
+      { title: 'Mensajes', component: HomePage, icon: 'mail', selected: false },
+      { title: 'Ajustes', component: HomePage, icon: 'switch', selected: false },
+      { title: 'Sugerencias', component: HomePage, icon: 'star', selected: false },
+      { title: 'Atención al cliente', component: HomePage, icon: 'headset', selected: false }
+    ];
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
@@ -26,8 +40,8 @@ export class MyApp {
           let clienteDoc = this.afs.doc<ClienteOptions>('clientes/' + user.email);
           clienteDoc.valueChanges().subscribe(data => {
             if (data) {
-              this.usuarioService.setUsuario(data);
-              this.rootPage = TabsPage;
+              this.usuarioServicio.setUsuario(data);
+              this.rootPage = HomePage;
             } else {
               let usuario: ClienteOptions = {
                 correoelectronico: user.email,
@@ -45,6 +59,12 @@ export class MyApp {
         }
       });
     });
+  }
+
+  openPage(page) {
+    this.pages.find(item => item.selected).selected = false;
+    page.selected = true;
+    this.rootPage = page.component;
   }
 }
 

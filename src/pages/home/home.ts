@@ -4,7 +4,6 @@ import { AngularFirestore, AngularFirestoreCollection } from 'angularfire2/fires
 import { EmpresaOptions } from '../../interfaces/empresa-options';
 import { Geolocation } from '@ionic-native/geolocation';
 import { UsuarioProvider } from '../../providers/usuario';
-import { FavoritoOptions } from '../../interfaces/favorito-options';
 
 declare var google: any;
 
@@ -17,12 +16,6 @@ export class HomePage {
   filePathEmpresas: string;
   negociosCollection: AngularFirestoreCollection<EmpresaOptions>;
   empresasEncontradas: EmpresaOptions[];
-  filePathFavoritos: string;
-  favoritosCollection: AngularFirestoreCollection<FavoritoOptions>;
-  empresasFavoritas: EmpresaOptions[];
-  pages: any[] = [
-    { nombre: 'Mi perfil', componente: 'PendientePage', icono: 'contact' }
-  ]
 
   constructor(
     public navCtrl: NavController,
@@ -32,24 +25,18 @@ export class HomePage {
   ) {
     this.filePathEmpresas = 'negocios';
     this.negociosCollection = this.afs.collection<EmpresaOptions>(this.filePathEmpresas);
-    this.filePathFavoritos = this.usuarioServicio.getFilePathCliente() + '/negocios';
-    this.favoritosCollection = this.afs.collection<FavoritoOptions>(this.filePathFavoritos, ref => ref.orderBy('servicios', 'desc').limit(5));
-    this.loadFavoritos();
     this.loadNegocios();
   }
 
-  loadFavoritos() {
-    this.favoritosCollection.valueChanges().subscribe(data => {
-      if (data) {
-        let empresasFavoritas = data.map(favorito => favorito.empresa);
-        this.empresasFavoritas = empresasFavoritas;
-      }
-    });
-  }
-
   loadNegocios() {
+    this.negociosCollection = this.afs.collection<EmpresaOptions>(this.filePathEmpresas, ref => ref.limit(20));
+    let read = this.negociosCollection.valueChanges().subscribe(data => {
+      this.empresasEncontradas = data.filter(empresa => empresa.id && empresa.id !== 'DIS');
+    });
+
     this.geolocation.watchPosition().subscribe(data => {
       if (data) {
+        read.unsubscribe();
         let location = new google.maps.LatLng(data.coords.latitude, data.coords.longitude);
         this.negociosCollection = this.afs.collection<EmpresaOptions>(this.filePathEmpresas);
         this.negociosCollection.valueChanges().subscribe(data => {
@@ -70,11 +57,6 @@ export class HomePage {
             }
           }).slice(0, 19);
         });
-      } else {
-        this.negociosCollection = this.afs.collection<EmpresaOptions>(this.filePathEmpresas, ref => ref.limit(20));
-        this.negociosCollection.valueChanges().subscribe(data => {
-          this.empresasEncontradas = data;
-        });
       }
     });
   }
@@ -83,14 +65,6 @@ export class HomePage {
     this.navCtrl.push('AgendaEmpresaPage', {
       idempresa: idempresa
     });
-  }
-
-  irA(pagina) {
-    this.navCtrl.push(pagina);
-  }
-
-  salir() {
-    this.usuarioServicio.signOut();
   }
 
 }

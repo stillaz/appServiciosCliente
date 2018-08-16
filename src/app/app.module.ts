@@ -18,8 +18,8 @@ import { AngularFireStorageModule } from 'angularfire2/storage';
 import { Camera } from '@ionic-native/camera';
 import { UsuarioProvider } from '../providers/usuario';
 import { LogueoPageModule } from '../pages/logueo/logueo.module';
-import { TabsPageModule } from '../pages/tabs/tabs.module';
 import { CitaPageModule } from '../pages/cita/cita.module';
+import { FavoritoPageModule } from '../pages/favorito/favorito.module';
 
 @NgModule({
   declarations: [
@@ -35,8 +35,8 @@ import { CitaPageModule } from '../pages/cita/cita.module';
     AngularFireStorageModule,
     CitaPageModule,
     DatePickerModule,
-    LogueoPageModule,
-    TabsPageModule
+    FavoritoPageModule,
+    LogueoPageModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [

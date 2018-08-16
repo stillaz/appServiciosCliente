@@ -1,5 +1,4 @@
 <ion-header>
-
   <ion-navbar color="light">
     <button ion-button menuToggle icon-only>
       <ion-icon name='menu'></ion-icon>
@@ -18,14 +17,13 @@
   <ion-list>
     <ion-grid class="grid-full" style="width: 100%">
       <ion-row>
-        <ion-col #item *ngFor="let empresa of empresasEncontradas" class="cell-1" (click)="reservar(empresa.id)">
+        <ion-col #item *ngFor="let empresa of empresasFavoritas" class="cell-1" (click)="reservar(empresa.id)">
           <img *ngIf="empresa.imagen" [src]="empresa.imagen" width="100%">
           <ion-item [ngSwitch]="empresa.negocio" color="dark" no-lines text-wrap>
             <ion-avatar *ngSwitchCase="'Barbería'" item-start>
               <img src="assets/imgs/barberia-logo.png" width="30px" height="30px" />
             </ion-avatar>
             <ion-note>{{empresa.negocio}}</ion-note>
-            <br/>
             <strong>{{empresa.nombre}}</strong>
           </ion-item>
           <p>{{empresa.direccion.direccion}}</p>

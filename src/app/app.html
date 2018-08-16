@@ -1,1 +1,32 @@
-<ion-nav [root]="rootPage"></ion-nav>
+<ion-menu [content]="content">
+    <ion-header *ngIf="usuarioServicio.getUsuario()">
+        <ion-toolbar color="primary">
+            <ion-item color="primary" no-lines *ngIf="usuarioServicio.getUsuario().imagen">
+                <ion-avatar>
+                    <img [src]="usuarioServicio.getUsuario().imagen" />
+                </ion-avatar>
+            </ion-item>
+            <ion-title>{{usuarioServicio.getUsuario().nombre}}
+                <br/>
+                <div style="font-size: small; color: #d1d1d1; font-weight: lighter;">{{usuarioServicio.getUsuario().correoelectronico}}</div>
+            </ion-title>
+        </ion-toolbar>
+    </ion-header>
+
+    <ion-content>
+        <ion-list>
+            <ion-item no-lines [class.highlight]="p.selected" menuClose *ngFor="let p of pages" (click)="openPage(p)">
+                <ion-row>
+                    <ion-col col-1>
+                        <ion-icon style="color: #4e4e4e" [name]="p.icon"></ion-icon>
+                    </ion-col>
+                    <ion-col>
+                        <b>{{p.title}}</b>
+                    </ion-col>
+                </ion-row>
+            </ion-item>
+        </ion-list>
+    </ion-content>
+</ion-menu>
+
+<ion-nav [root]="rootPage" #content swipeBackEnabled="false"></ion-nav>

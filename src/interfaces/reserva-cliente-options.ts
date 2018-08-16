@@ -9,5 +9,6 @@ export interface ReservaClienteOptions {
     idcarrito: number,
     servicio: ServicioOptions[],
     usuario: UsuarioOptions,
-    empresa: EmpresaOptions
+    empresa: EmpresaOptions,
+    fechaActualizacion: any
 }

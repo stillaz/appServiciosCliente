@@ -304,7 +304,8 @@ export class ReservaPage {
                 idcarrito: reservaNueva.idcarrito,
                 servicio: reservaNueva.servicio,
                 usuario: this.usuario,
-                empresa: this.empresa
+                empresa: this.empresa,
+                fechaActualizacion: new Date()
               };
 
               batch.set(this.servicioDoc.ref, reservaCliente);
