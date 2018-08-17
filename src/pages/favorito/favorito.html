@@ -5,8 +5,8 @@
     </button>
 
     <ion-buttons start>
-      <button ion-button icon-end outline color="secondary" (click)="close()">
-        Ver mapa
+      <button ion-button icon-end clear color="secondary" (click)="mapa()">
+        mapa
         <ion-icon name="map"></ion-icon>
       </button>
     </ion-buttons>
@@ -26,8 +26,8 @@
             <ion-note>{{empresa.negocio}}</ion-note>
             <strong>{{empresa.nombre}}</strong>
           </ion-item>
-          <p>{{empresa.direccion.direccion}}</p>
-          <p>Tel: {{empresa.telefono}}</p>
+          <p style="margin: 0px; color: #c5c5c5">{{empresa.direccion.direccion}}</p>
+          <p style="margin-top: 5px; color: #c5c5c5">Tel: {{empresa.telefono}}</p>
         </ion-col>
       </ion-row>
     </ion-grid>

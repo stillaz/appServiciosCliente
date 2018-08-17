@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, ModalController } from 'ionic-angular';
 import { AngularFirestoreCollection, AngularFirestore } from 'angularfire2/firestore';
 import { FavoritoOptions } from '../../interfaces/favorito-options';
 import { EmpresaOptions } from '../../interfaces/empresa-options';
 import { UsuarioProvider } from '../../providers/usuario';
+import { MapaPage } from '../mapa/mapa';
 
 /**
  * Generated class for the FavoritoPage page.
@@ -27,7 +28,8 @@ export class FavoritoPage {
     public navCtrl: NavController,
     public navParams: NavParams,
     public usuarioServicio: UsuarioProvider,
-    private afs: AngularFirestore
+    private afs: AngularFirestore,
+    public modalCtrl: ModalController
   ) {
     this.filePathFavoritos = this.usuarioServicio.getFilePathCliente() + '/negocios';
     this.favoritosCollection = this.afs.collection<FavoritoOptions>(this.filePathFavoritos, ref => ref.orderBy('servicios', 'desc').limit(20));
@@ -47,6 +49,10 @@ export class FavoritoPage {
     this.navCtrl.push('AgendaEmpresaPage', {
       idempresa: idempresa
     });
+  }
+
+  mapa(){
+    this.modalCtrl.create(MapaPage).present();
   }
 
 }

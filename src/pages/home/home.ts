@@ -5,6 +5,7 @@ import { EmpresaOptions } from '../../interfaces/empresa-options';
 import { UsuarioProvider } from '../../providers/usuario';
 import { MapaPage } from '../mapa/mapa';
 import { LocalizacionProvider } from '../../providers/localizacion';
+import { FavoritoPage } from '../favorito/favorito';
 
 declare var google: any;
 
@@ -70,6 +71,10 @@ export class HomePage {
 
   mapa() {
     this.modalCtrl.create(MapaPage).present();
+  }
+
+  favoritos(){
+    this.navCtrl.push(FavoritoPage);
   }
 
 }

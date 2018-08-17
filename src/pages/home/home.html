@@ -6,6 +6,9 @@
     </button>
 
     <ion-buttons start>
+      <button ion-button icon-end clear style="color: #E74C3C" (click)="favoritos()">
+        <ion-icon name="heart"></ion-icon>
+      </button>
       <button ion-button icon-end clear color="secondary" (click)="mapa()">
         mapa
         <ion-icon name="map"></ion-icon>
@@ -28,8 +31,8 @@
             <br/>
             <strong>{{empresa.nombre}}</strong>
           </ion-item>
-          <p>{{empresa.direccion.direccion}}</p>
-          <p>Tel: {{empresa.telefono}}</p>
+          <p style="margin: 0px; color: #c5c5c5">{{empresa.direccion.direccion}}</p>
+          <p style="margin-top: 5px; color: #c5c5c5">Tel: {{empresa.telefono}}</p>
         </ion-col>
       </ion-row>
     </ion-grid>
