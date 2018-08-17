@@ -93,10 +93,7 @@ export class LogueoPage {
 
   private socialSignIn(provider) {
     return this.afa.auth.signInWithPopup(provider)
-      .then((credential) => {
-        console.log(credential.user);
-      })
-      .catch(error => console.log(error));
+      .catch(error => alert(error));
   }
 
 }

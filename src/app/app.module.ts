@@ -20,11 +20,14 @@ import { UsuarioProvider } from '../providers/usuario';
 import { LogueoPageModule } from '../pages/logueo/logueo.module';
 import { CitaPageModule } from '../pages/cita/cita.module';
 import { FavoritoPageModule } from '../pages/favorito/favorito.module';
+import { MapaPage } from '../pages/mapa/mapa';
+import { LocalizacionProvider } from '../providers/localizacion';
 
 @NgModule({
   declarations: [
     MyApp,
-    HomePage
+    HomePage,
+    MapaPage
   ],
   imports: [
     BrowserModule,
@@ -41,7 +44,8 @@ import { FavoritoPageModule } from '../pages/favorito/favorito.module';
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
-    HomePage
+    HomePage,
+    MapaPage
   ],
   providers: [
     Camera,
@@ -49,7 +53,8 @@ import { FavoritoPageModule } from '../pages/favorito/favorito.module';
     SplashScreen,
     Geolocation,
     UsuarioProvider,
-    { provide: ErrorHandler, useClass: IonicErrorHandler }
+    { provide: ErrorHandler, useClass: IonicErrorHandler },
+    LocalizacionProvider
   ]
 })
 export class AppModule { }

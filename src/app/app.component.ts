@@ -11,6 +11,8 @@ import { UsuarioProvider } from '../providers/usuario';
 import { HomePage } from '../pages/home/home';
 import { CitaPage } from '../pages/cita/cita';
 import { FavoritoPage } from '../pages/favorito/favorito';
+import { LocalizacionProvider } from '../providers/localizacion';
+import { Geolocation } from '@ionic-native/geolocation';
 
 @Component({
   templateUrl: 'app.html'
@@ -18,8 +20,9 @@ import { FavoritoPage } from '../pages/favorito/favorito';
 export class MyApp {
   rootPage: any = LogueoPage;
   pages: any[];
+  iniciar = true;
 
-  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, private afa: AngularFireAuth, private afs: AngularFirestore, public usuarioServicio: UsuarioProvider) {
+  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, private afa: AngularFireAuth, private afs: AngularFirestore, public usuarioServicio: UsuarioProvider, public localizacionServicio: LocalizacionProvider, private geolocation: Geolocation) {
     this.pages = [
       { title: 'Inicio', component: HomePage, icon: 'home', selected: true },
       { title: 'Mi cuenta', component: HomePage, icon: 'contact', selected: false },
@@ -40,8 +43,25 @@ export class MyApp {
           let clienteDoc = this.afs.doc<ClienteOptions>('clientes/' + user.email);
           clienteDoc.valueChanges().subscribe(data => {
             if (data) {
-              this.usuarioServicio.setUsuario(data);
-              this.rootPage = HomePage;
+              let options = {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+              };
+              this.geolocation.watchPosition(options).subscribe(localizacion => {
+                if (this.iniciar) {
+                  this.localizacionServicio.setPosicion(localizacion);
+                  this.usuarioServicio.setUsuario(data);
+                  this.rootPage = HomePage;
+                  this.iniciar = false;
+                }
+              }, err => {
+                if (this.iniciar) {
+                  this.usuarioServicio.setUsuario(data);
+                  this.rootPage = HomePage;
+                  this.iniciar = false;
+                }
+              });
             } else {
               let usuario: ClienteOptions = {
                 correoelectronico: user.email,
