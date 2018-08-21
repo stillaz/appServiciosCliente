@@ -5,5 +5,6 @@ export interface ClienteOptions {
     telefono: string,
     correoelectronico: string,
     uid: string,
-    imagen: string
+    imagen: string,
+    token: string
 }

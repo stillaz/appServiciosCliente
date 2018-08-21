@@ -5,6 +5,7 @@ import { LoginOptions } from '../../interfaces/login-options';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { HomePage } from '../home/home';
 import firebase from 'firebase';
+import { Platform } from 'ionic-angular/platform/platform';
 
 /**
  * Generated class for the LogueoPage page.
@@ -23,14 +24,17 @@ export class LogueoPage {
   login = {} as LoginOptions;
   todo: FormGroup;
   authState: any = null;
+  mobile: boolean;
 
   constructor(
     public navCtrl: NavController,
     public navParams: NavParams,
     private afa: AngularFireAuth,
     private formBuilder: FormBuilder,
-    public alertCtrl: AlertController
+    public alertCtrl: AlertController,
+    public plt: Platform
   ) {
+    this.mobile = this.plt.is('cordova');
     this.form();
   }
 
@@ -92,8 +96,13 @@ export class LogueoPage {
   }
 
   private socialSignIn(provider) {
-    return this.afa.auth.signInWithPopup(provider)
-      .catch(error => alert(error));
+    if (this.mobile) {
+      return this.afa.auth.signInWithRedirect(provider)
+        .catch(error => alert(error));
+    } else {
+      return this.afa.auth.signInWithPopup(provider)
+        .catch(error => alert(error));
+    }
   }
 
 }

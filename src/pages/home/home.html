@@ -19,7 +19,7 @@
 
 <ion-content class="background">
   <ion-list>
-    <ion-grid class="grid-full" style="width: 100%">
+    <ion-grid class="grid-full" style="width: 100%; padding: 0px">
       <ion-row>
         <ion-col #item *ngFor="let empresa of empresasEncontradas" class="cell-1" (click)="reservar(empresa.id)">
           <img *ngIf="empresa.imagen" [src]="empresa.imagen" width="100%">

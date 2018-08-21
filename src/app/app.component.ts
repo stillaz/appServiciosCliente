@@ -41,38 +41,43 @@ export class MyApp {
       this.afa.auth.onAuthStateChanged(user => {
         if (user) {
           let clienteDoc = this.afs.doc<ClienteOptions>('clientes/' + user.email);
-          clienteDoc.valueChanges().subscribe(data => {
-            if (data) {
-              let options = {
-                enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 0
-              };
-              this.geolocation.watchPosition(options).subscribe(localizacion => {
-                if (this.iniciar) {
-                  this.localizacionServicio.setPosicion(localizacion);
-                  this.usuarioServicio.setUsuario(data);
-                  this.rootPage = HomePage;
-                  this.iniciar = false;
-                }
-              }, err => {
-                if (this.iniciar) {
-                  this.usuarioServicio.setUsuario(data);
-                  this.rootPage = HomePage;
-                  this.iniciar = false;
+          user.getIdToken().then(token => {
+            clienteDoc.update({ token: token }).then(() => {
+              clienteDoc.valueChanges().subscribe(data => {
+                if (data) {
+                  let options = {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                  };
+                  this.geolocation.watchPosition(options).subscribe(localizacion => {
+                    if (this.iniciar) {
+                      this.localizacionServicio.setPosicion(localizacion);
+                      this.usuarioServicio.setUsuario(data);
+                      this.rootPage = HomePage;
+                      this.iniciar = false;
+                    }
+                  }, err => {
+                    if (this.iniciar) {
+                      this.usuarioServicio.setUsuario(data);
+                      this.rootPage = HomePage;
+                      this.iniciar = false;
+                    }
+                  });
+                } else {
+                  let usuario: ClienteOptions = {
+                    correoelectronico: user.email,
+                    id: user.displayName,
+                    nombre: user.displayName,
+                    imagen: user.photoURL,
+                    telefono: user.phoneNumber,
+                    uid: user.uid,
+                    token: token
+                  };
+                  clienteDoc.set(usuario);
                 }
               });
-            } else {
-              let usuario: ClienteOptions = {
-                correoelectronico: user.email,
-                id: user.displayName,
-                nombre: user.displayName,
-                imagen: user.photoURL,
-                telefono: user.phoneNumber,
-                uid: user.uid
-              };
-              clienteDoc.set(usuario);
-            }
+            });
           });
         } else {
           this.rootPage = LogueoPage;

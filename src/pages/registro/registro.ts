@@ -180,23 +180,25 @@ export class RegistroPage {
 
   guardar() {
     let usuario = this.todo.value;
-    this.usuario = {
-      id: usuario.id,
-      nombre: usuario.nombre,
-      telefono: usuario.telefono,
-      correoelectronico: usuario.correoelectronico,
-      imagen: usuario.imagen,
-      uid: usuario.uid
-    };
-
     if (this.nuevo) {
       this.afa.auth.createUserWithEmailAndPassword(usuario.correoelectronico, usuario.clave).then(data => {
-        if (data) {
-          this.usuario.uid = data.user.uid;
-          data.user.sendEmailVerification().then(() => {
-            this.registrar();
-          });
-        }
+        data.user.getIdToken().then(token => {
+          this.usuario = {
+            id: usuario.id,
+            nombre: usuario.nombre,
+            telefono: usuario.telefono,
+            correoelectronico: usuario.correoelectronico,
+            imagen: usuario.imagen,
+            uid: usuario.uid,
+            token: token
+          };
+          if (data) {
+            this.usuario.uid = data.user.uid;
+            data.user.sendEmailVerification().then(() => {
+              this.registrar();
+            });
+          }
+        });
       }).catch(err => this.alertCtrl.create({
         title: 'Nuevo usuario',
         message: err,

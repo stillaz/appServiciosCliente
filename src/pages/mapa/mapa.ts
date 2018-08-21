@@ -155,7 +155,6 @@ export class MapaPage {
   }
 
   reservar(idempresa: string) {
-    this.navCtrl.setRoot(HomePage);
     this.navCtrl.push('AgendaEmpresaPage', {
       idempresa: idempresa
     });
