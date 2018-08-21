@@ -324,6 +324,12 @@ export class ReservaPage {
 
                 batch.set(this.empresaServicioDoc.ref, favorito);
 
+                let servicioId = this.afs.createId();
+
+                const serviciosDoc = this.afs.doc('servicioscliente/' + servicioId);
+
+                batch.set(serviciosDoc.ref, reservaNueva);
+
                 batch.commit().then(() => {
                   this.genericAlert('Reserva registrada', 'Se ha registrado la reserva');
                 }).catch(err => this.genericAlert('Error', err));

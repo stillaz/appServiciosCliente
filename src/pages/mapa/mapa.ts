@@ -3,7 +3,6 @@ import { NavController, NavParams, ViewController } from 'ionic-angular';
 import { Platform } from 'ionic-angular/platform/platform';
 import { AngularFirestore, AngularFirestoreCollection } from 'angularfire2/firestore';
 import { EmpresaOptions } from '../../interfaces/empresa-options';
-import { HomePage } from '../home/home';
 import { LocalizacionProvider } from '../../providers/localizacion';
 
 /**
