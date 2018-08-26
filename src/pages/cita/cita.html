@@ -65,9 +65,9 @@
                 <b>Usuario:</b> {{reserva.reserva.usuario.nombre}} - {{reserva.reserva.usuario.telefono}}
               </p>
               <ion-note>{{reserva.dentroDe}}</ion-note>
-              <button ion-button small color="danger" icon-start clear (click)="cancelar(reserva.reserva)">
+              <button ion-button small color="danger" icon-start outline (click)="cancelar(reserva.reserva)">
                 <ion-icon name="close"></ion-icon>
-                Cancelar cita
+                Cancelar
               </button>
             </ion-item>
           </ion-list>
@@ -88,10 +88,11 @@
 
   <ion-list *ngSwitchCase="'cancelados'">
     <ion-item *ngFor="let reserva of cancelados" (click)="ver(reserva)">
-      <ion-avatar *ngIf="reserva.empresa.imagen">
+      <ion-avatar item-start *ngIf="reserva.empresa.imagen">
         <img [src]="reserva.empresa.imagen" />
       </ion-avatar>
-      <ion-note>{{reserva.empresa.nombre}}</ion-note>
+      <h2><b>{{reserva.empresa.nombre}}</b></h2>
+      <p><b>Fecha:</b> {{reserva.fechaInicio.toDate() | date: 'mediumDate'}} - {{reserva.fechaInicio.toDate() | date: 'HH:mm'}} a {{reserva.fechaFin.toDate() | date: 'HH:mm'}}</p>
       <p><b>Cancelado:</b> {{reserva.fechaActualizacion.toDate() | date: 'medium'}}</p>
     </ion-item>
   </ion-list>

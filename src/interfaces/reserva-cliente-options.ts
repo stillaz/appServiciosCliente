@@ -10,5 +10,6 @@ export interface ReservaClienteOptions {
     servicio: ServicioOptions[],
     usuario: UsuarioOptions,
     empresa: EmpresaOptions,
-    fechaActualizacion: any
+    fechaActualizacion: any,
+    id: string
 }

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, AlertController, ModalController, ViewController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, AlertController, ModalController, ViewController, ToastController } from 'ionic-angular';
 import { DisponibilidadOptions } from '../../interfaces/disponibilidad-options';
 import { ServicioOptions } from '../../interfaces/servicio-options';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from 'angularfire2/firestore';
@@ -59,7 +59,8 @@ export class ReservaPage {
     public alertCtrl: AlertController,
     public modalCtrl: ModalController,
     public viewCtrl: ViewController,
-    public usuarioServicio: UsuarioProvider
+    public usuarioServicio: UsuarioProvider,
+    public toastCtrl: ToastController
   ) {
     this.disponibilidad = this.navParams.get('disponibilidad');
     let idempresa = this.navParams.get('idempresa');
@@ -305,7 +306,8 @@ export class ReservaPage {
                 servicio: reservaNueva.servicio,
                 usuario: this.usuario,
                 empresa: this.empresa,
-                fechaActualizacion: new Date()
+                fechaActualizacion: new Date(),
+                id: reservaNueva.id
               };
 
               batch.set(this.servicioDoc.ref, reservaCliente);
@@ -324,14 +326,15 @@ export class ReservaPage {
 
                 batch.set(this.empresaServicioDoc.ref, favorito);
 
-                let servicioId = this.afs.createId();
-
-                const serviciosDoc = this.afs.doc('servicioscliente/' + servicioId);
+                const serviciosDoc = this.afs.doc('servicioscliente/' + reservaNueva.id);
 
                 batch.set(serviciosDoc.ref, reservaNueva);
 
                 batch.commit().then(() => {
-                  this.genericAlert('Reserva registrada', 'Se ha registrado la reserva');
+                  this.toastCtrl.create({
+                    message: 'La reserva ha sido asignada correctamente',
+                    duration: 3000
+                  }).present();
                 }).catch(err => this.genericAlert('Error', err));
 
                 this.navCtrl.popToRoot();
@@ -347,6 +350,7 @@ export class ReservaPage {
   }
 
   reservar(servicio: ServicioOptions) {
+    let servicioId = this.afs.createId();
     let dia = moment(this.disponibilidad.fechaInicio).startOf('day').toDate();
     this.disponibilidadDoc = this.usuariosCollection.doc(this.usuario.id).collection('disponibilidades').doc(dia.getTime().toString());
     let ultimoHorario = this.disponibilidad.fechaInicio;
@@ -362,7 +366,6 @@ export class ReservaPage {
       let disponibilidadEncontrada = this.horario.find(disponibilidad =>
         disponibilidad.fechaInicio.getTime() === horaInicio.getTime()
       );
-
       if (!disponibilidadEncontrada || disponibilidadEncontrada.estado !== this.constantes.ESTADOS_RESERVA.DISPONIBLE) {
         disponible = false;
         break;
@@ -376,7 +379,10 @@ export class ReservaPage {
           idcarrito: null,
           idusuario: this.usuario.id,
           nombreusuario: this.usuario.nombre,
-          servicio: [servicio]
+          servicio: [servicio],
+          id: servicioId,
+          actualiza: 'cliente',
+          fechaActualizacion: new Date()
         }
         disponibilidadBloquear.push(reserva);
       }
@@ -394,7 +400,10 @@ export class ReservaPage {
         evento: this.constantes.EVENTOS.OTRO,
         idcarrito: this.idcarrito,
         idusuario: this.usuario.id,
-        nombreusuario: this.usuario.nombre
+        nombreusuario: this.usuario.nombre,
+        id: servicioId,
+        actualiza: 'cliente',
+        fechaActualizacion: new Date()
       });
       ultimoHorario = disponibilidadBloquear[disponibilidadBloquear.length - 1].fechaFin;
       this.totalServicios += Number(servicio.valor);

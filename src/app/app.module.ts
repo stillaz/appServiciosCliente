@@ -22,6 +22,7 @@ import { CitaPageModule } from '../pages/cita/cita.module';
 import { FavoritoPageModule } from '../pages/favorito/favorito.module';
 import { MapaPage } from '../pages/mapa/mapa';
 import { LocalizacionProvider } from '../providers/localizacion';
+import { CuentaPageModule } from '../pages/cuenta/cuenta.module';
 
 @NgModule({
   declarations: [
@@ -37,6 +38,7 @@ import { LocalizacionProvider } from '../providers/localizacion';
     AngularFireAuthModule,
     AngularFireStorageModule,
     CitaPageModule,
+    CuentaPageModule,
     DatePickerModule,
     FavoritoPageModule,
     LogueoPageModule

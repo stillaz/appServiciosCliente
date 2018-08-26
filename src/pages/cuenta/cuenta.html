@@ -1,0 +1,68 @@
+<!--
+  Generated template for the PerfilPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header color="primary">
+  <ion-navbar color="primary" style="padding: 0px">
+    <button ion-button menuToggle icon-only>
+      <ion-icon name='menu'></ion-icon>
+    </button>
+
+    <ion-buttons end>
+      <button ion-button>
+        <ion-icon name="notifications"></ion-icon>
+      </button>
+
+      <button ion-button>
+          <ion-icon name="mail"></ion-icon>
+        </button>
+    </ion-buttons>
+  </ion-navbar>
+
+  <ion-item color="primary" no-lines (click)="perfil()">
+    <ion-avatar item-end *ngIf="usuario.imagen">
+      <img [src]="usuario.imagen" />
+    </ion-avatar>
+    <h1>{{usuario.nombre}}</h1>
+    <div style="font-size: small; color: #d1d1d1; font-weight: lighter;">{{usuario.correoelectronico}}</div>
+  </ion-item>
+</ion-header>
+
+
+<ion-content padding class="highlight">
+  <ion-list>
+    <ion-item>
+      Todas las citas
+    </ion-item>
+
+    <ion-item>
+      Citas pendientes
+    </ion-item>
+
+    <ion-item>
+      Citas finalizadas
+    </ion-item>
+
+    <ion-item>
+      Citas canceladas
+    </ion-item>
+  </ion-list>
+
+  <ion-list>
+    <ion-item>
+      Mis favoritos
+    </ion-item>
+  </ion-list>
+
+  <ion-list>
+    <ion-item>
+      Atención al cliente
+    </ion-item>
+
+    <ion-item>
+      Preguntas y respuestas
+    </ion-item>
+  </ion-list>
+</ion-content>

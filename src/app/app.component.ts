@@ -13,6 +13,7 @@ import { CitaPage } from '../pages/cita/cita';
 import { FavoritoPage } from '../pages/favorito/favorito';
 import { LocalizacionProvider } from '../providers/localizacion';
 import { Geolocation } from '@ionic-native/geolocation';
+import { CuentaPage } from '../pages/cuenta/cuenta';
 
 @Component({
   templateUrl: 'app.html'
@@ -25,7 +26,7 @@ export class MyApp {
   constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, private afa: AngularFireAuth, private afs: AngularFirestore, public usuarioServicio: UsuarioProvider, public localizacionServicio: LocalizacionProvider, private geolocation: Geolocation) {
     this.pages = [
       { title: 'Inicio', component: HomePage, icon: 'home', selected: true },
-      { title: 'Mi cuenta', component: HomePage, icon: 'contact', selected: false },
+      { title: 'Mi cuenta', component: CuentaPage, icon: 'contact', selected: false },
       { title: 'Mis favoritos', component: FavoritoPage, icon: 'heart', selected: false },
       { title: 'Mis citas', component: CitaPage, icon: 'bookmark', selected: false },
       { title: 'Mensajes', component: HomePage, icon: 'mail', selected: false },

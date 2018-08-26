@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, AlertController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, AlertController, ToastController } from 'ionic-angular';
 import * as DataProvider from '../../providers/constants';
 import { ReservaClienteOptions } from '../../interfaces/reserva-cliente-options';
 import { AngularFirestoreCollection, AngularFirestore, AngularFirestoreDocument } from 'angularfire2/firestore';
@@ -39,7 +39,8 @@ export class CitaPage {
     public navParams: NavParams,
     public usuarioServicio: UsuarioProvider,
     private afs: AngularFirestore,
-    public alertCtrl: AlertController
+    public alertCtrl: AlertController,
+    public toastCtrl: ToastController
   ) {
     this.filePathReservas = this.usuarioServicio.getFilePathCliente() + '/servicios';
     this.reservasCollection = this.afs.collection<ReservaClienteOptions>(this.filePathReservas, ref => ref.where('estado', '==', this.constantes.ESTADOS_RESERVA.RESERVADO));
@@ -83,12 +84,12 @@ export class CitaPage {
           let horas = fecha.diff(ahora, 'hours');
           if (horas >= 24) {
             let dias = fecha.diff(ahora, 'days');
-            reserva.dentroDe = dias === 1 ? 'mañana' : 'en ' + dias + ' días';
+            reserva.dentroDe = dias === 1 ? 'mañana' : 'dentro de ' + dias + ' días';
           } else {
-            reserva.dentroDe = horas === 1 ? 'en una hora' : 'en ' + horas + ' horas';
+            reserva.dentroDe = horas === 1 ? 'dentro de una hora' : 'dentro de ' + horas + ' horas';
           }
         } else {
-          reserva.dentroDe = minutos === 1 ? 'en un minuto' : 'en ' + minutos + ' minutos';
+          reserva.dentroDe = minutos === 1 ? 'dentro de un minuto' : 'dentro de ' + minutos + ' minutos';
         }
       });
     });
@@ -154,7 +155,10 @@ export class CitaPage {
             idcarrito: cita.idcarrito,
             idusuario: cita.usuario.id,
             nombreusuario: cita.usuario.nombre,
-            servicio: cita.servicio
+            servicio: cita.servicio,
+            id: cita.id,
+            fechaActualizacion: new Date(),
+            actualiza: 'cliente'
           }
 
           batch.set(canceladoDoc.ref, reserva);
@@ -168,6 +172,10 @@ export class CitaPage {
           let totalesServiciosDoc = this.afs.doc(filePathEmpresa + '/totalesservicios/' + mesServicio);
 
           let totalServiciosReserva = reserva.servicio.map(servicioReserva => Number(servicioReserva.valor)).reduce((a, b) => a + b);
+
+          const serviciosDoc = this.afs.doc('servicioscliente/' + cita.id);
+
+          batch.update(serviciosDoc.ref, { estado: this.constantes.ESTADOS_RESERVA.CANCELADO, fechaActualizacion: new Date(), actualiza: 'cliente' });
 
           disponibilidadDoc.ref.get().then(datosDiarios => {
             let totalDiarioActual = datosDiarios.get('totalServicios');
@@ -187,13 +195,9 @@ export class CitaPage {
                 batch.update(totalesServiciosUsuarioDoc.ref, { totalServicios: Number(totalActual) - totalServiciosReserva, cantidadServicios: Number(cantidadActual) - 1, fecha: new Date() });
 
                 batch.commit().then(() => {
-                  this.alertCtrl.create({
-                    title: 'Cita cancelada',
-                    subTitle: 'Cita en ' + cita.empresa.nombre + '.',
-                    message: 'La cita con ' + cita.usuario.nombre + ' para ' + textoFecha + ' ha sido cancelada.',
-                    buttons: [{
-                      text: 'OK'
-                    }]
+                  this.toastCtrl.create({
+                    message: 'La cita en ' + cita.empresa.nombre + ' para ' + textoFecha + ' ha sido cancelada.',
+                    duration: 3000
                   }).present();
                 }).catch(err => alert(err));
               });
