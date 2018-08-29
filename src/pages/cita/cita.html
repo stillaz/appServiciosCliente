@@ -13,17 +13,17 @@
     <ion-title>Mis citas</ion-title>
   </ion-navbar>
 
-  <ion-segment [(ngModel)]="modo" (ionChange)="updateSeleccionado()">
+  <ion-segment *ngIf="mostrarFiltros" [(ngModel)]="modo" (ionChange)="updateSeleccionado()">
     <ion-segment-button value="pendientes">
       Pendientes
     </ion-segment-button>
 
-    <ion-segment-button value="finalizados">
-      Finalizados
+    <ion-segment-button value="finalizadas">
+      Finalizadas
     </ion-segment-button>
 
-    <ion-segment-button value="cancelados">
-      Cancelados
+    <ion-segment-button value="canceladas">
+      Canceladas
     </ion-segment-button>
   </ion-segment>
 </ion-header>
@@ -65,10 +65,12 @@
                 <b>Usuario:</b> {{reserva.reserva.usuario.nombre}} - {{reserva.reserva.usuario.telefono}}
               </p>
               <ion-note>{{reserva.dentroDe}}</ion-note>
-              <button ion-button small color="danger" icon-start outline (click)="cancelar(reserva.reserva)">
-                <ion-icon name="close"></ion-icon>
-                Cancelar
-              </button>
+              <ion-buttons end>
+                <button ion-button small color="danger" icon-start outline (click)="cancelar(reserva.reserva)">
+                  <ion-icon name="reorder"></ion-icon>
+                  Opciones
+                </button>
+              </ion-buttons>
             </ion-item>
           </ion-list>
         </ion-card-content>
@@ -76,7 +78,7 @@
     </ion-item-group>
   </ion-list>
 
-  <ion-list *ngSwitchCase="'finalizados'">
+  <ion-list *ngSwitchCase="'finalizadas'">
     <ion-item *ngFor="let reserva of finalizados" (click)="ver(reserva)">
       <ion-avatar *ngIf="reserva.empresa.imagen">
         <img [src]="reserva.empresa.imagen" />
@@ -86,14 +88,27 @@
     </ion-item>
   </ion-list>
 
-  <ion-list *ngSwitchCase="'cancelados'">
+  <ion-list *ngSwitchCase="'canceladas'">
     <ion-item *ngFor="let reserva of cancelados" (click)="ver(reserva)">
       <ion-avatar item-start *ngIf="reserva.empresa.imagen">
         <img [src]="reserva.empresa.imagen" />
       </ion-avatar>
       <h2><b>{{reserva.empresa.nombre}}</b></h2>
-      <p><b>Fecha:</b> {{reserva.fechaInicio.toDate() | date: 'mediumDate'}} - {{reserva.fechaInicio.toDate() | date: 'HH:mm'}} a {{reserva.fechaFin.toDate() | date: 'HH:mm'}}</p>
+      <p><b>Fecha:</b> {{reserva.fechaInicio.toDate() | date: 'mediumDate'}} - {{reserva.fechaInicio.toDate() | date: 'HH:mm'}}
+        a {{reserva.fechaFin.toDate() | date: 'HH:mm'}}</p>
       <p><b>Cancelado:</b> {{reserva.fechaActualizacion.toDate() | date: 'medium'}}</p>
+    </ion-item>
+  </ion-list>
+
+  <ion-list *ngSwitchCase="'todas'">
+    <ion-item *ngFor="let reserva of todos" (click)="ver(reserva)">
+      <ion-avatar item-start *ngIf="reserva.empresa.imagen">
+        <img [src]="reserva.empresa.imagen" />
+      </ion-avatar>
+      <h2><b>{{reserva.empresa.nombre}}</b></h2>
+      <p><b>Fecha:</b> {{reserva.fechaInicio.toDate() | date: 'mediumDate'}} - {{reserva.fechaInicio.toDate() | date: 'HH:mm'}}
+        a {{reserva.fechaFin.toDate() | date: 'HH:mm'}}</p>
+      <p><b>Estado:</b> {{reserva.estado}}</p>
     </ion-item>
   </ion-list>
 </ion-content>

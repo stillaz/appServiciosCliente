@@ -16,8 +16,8 @@
       </button>
 
       <button ion-button>
-          <ion-icon name="mail"></ion-icon>
-        </button>
+        <ion-icon name="mail"></ion-icon>
+      </button>
     </ion-buttons>
   </ion-navbar>
 
@@ -33,24 +33,24 @@
 
 <ion-content padding class="highlight">
   <ion-list>
-    <ion-item>
+    <ion-item (click)="citas('todas')">
       Todas las citas
     </ion-item>
 
-    <ion-item>
+    <ion-item (click)="citas('pendientes')">
       Citas pendientes
     </ion-item>
 
-    <ion-item>
+    <ion-item (click)="citas('finalizadas')">
       Citas finalizadas
     </ion-item>
 
-    <ion-item>
+    <ion-item (click)="citas('canceladas')">
       Citas canceladas
     </ion-item>
   </ion-list>
 
-  <ion-list>
+  <ion-list (click)="favoritos()">
     <ion-item>
       Mis favoritos
     </ion-item>

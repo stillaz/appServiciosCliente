@@ -27,7 +27,17 @@ export class CuentaPage {
     this.usuario = this.usuarioServicio.getUsuario();
   }
 
-  perfil(){
+  perfil() {
     this.navCtrl.push('PerfilPage');
+  }
+
+  citas(modo: string) {
+    this.navCtrl.push('CitaPage', {
+      modo: modo
+    });
+  }
+
+  favoritos(){
+    this.navCtrl.push('FavoritoPage');
   }
 }

@@ -1,11 +1,11 @@
 import { Component, ViewChild } from '@angular/core';
 import { IonicPage, NavController, NavParams, Content, AlertController } from 'ionic-angular';
-import { AngularFirestoreDocument, AngularFirestoreCollection, AngularFirestore } from '../../../node_modules/angularfire2/firestore';
+import { AngularFirestoreDocument, AngularFirestoreCollection, AngularFirestore } from 'angularfire2/firestore';
 import { EmpresaOptions } from '../../interfaces/empresa-options';
 import moment from 'moment';
 import * as DataProvider from '../../providers/constants';
 import { UsuarioOptions } from '../../interfaces/usuario-options';
-import { Observable } from '../../../node_modules/rxjs';
+import { Observable } from 'rxjs';
 import 'rxjs/add/observable/interval';
 import { ReservaOptions } from '../../interfaces/reserva-options';
 import { DisponibilidadOptions } from '../../interfaces/disponibilidad-options';

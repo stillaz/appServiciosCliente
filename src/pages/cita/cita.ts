@@ -29,10 +29,13 @@ export class CitaPage {
   reservasCollection: AngularFirestoreCollection<ReservaClienteOptions>;
   finalizadosCollection: AngularFirestoreCollection<ReservaClienteOptions>;
   canceladosCollection: AngularFirestoreCollection<ReservaClienteOptions>;
+  todosCollection: AngularFirestoreCollection<ReservaClienteOptions>;
   pendientes: any[];
   modo: string = 'pendientes';
   finalizados: ReservaClienteOptions[];
   cancelados: ReservaClienteOptions[];
+  todos: ReservaClienteOptions[];
+  mostrarFiltros: boolean;
 
   constructor(
     public navCtrl: NavController,
@@ -42,11 +45,19 @@ export class CitaPage {
     public alertCtrl: AlertController,
     public toastCtrl: ToastController
   ) {
+    let modo = this.navParams.get('modo');
+    this.mostrarFiltros = !modo;
+    this.modo = modo ? modo : 'pendientes';
     this.filePathReservas = this.usuarioServicio.getFilePathCliente() + '/servicios';
     this.reservasCollection = this.afs.collection<ReservaClienteOptions>(this.filePathReservas, ref => ref.where('estado', '==', this.constantes.ESTADOS_RESERVA.RESERVADO));
     this.finalizadosCollection = this.afs.collection<ReservaClienteOptions>(this.filePathReservas, ref => ref.where('estado', '==', this.constantes.ESTADOS_RESERVA.FINALIZADO));
     this.canceladosCollection = this.afs.collection<ReservaClienteOptions>(this.filePathReservas, ref => ref.where('estado', '==', this.constantes.ESTADOS_RESERVA.CANCELADO));
-    this.updateReservas();
+    this.todosCollection = this.afs.collection<ReservaClienteOptions>(this.filePathReservas, ref => ref.limit(20));
+    if (!modo) {
+      this.updateReservas();
+    } else {
+      this.updateSeleccionado();
+    }
   }
 
   ionViewDidLoad() {
@@ -107,15 +118,24 @@ export class CitaPage {
     });
   }
 
+  updateTodos() {
+    this.todosCollection.valueChanges().subscribe(data => {
+      this.todos = data;
+    });
+  }
+
   updateSeleccionado() {
     switch (this.modo) {
+      case 'todas':
+        this.updateTodos();
+        break;
       case 'pendientes':
         this.updateReservas();
         break;
-      case 'finalizados':
+      case 'finalizadas':
         this.updateFinalizados();
         break;
-      case 'cancelados':
+      case 'canceladas':
         this.updateCancelados();
         break;
     }
