@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.dis.cliente" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>appCliente</name>
+<widget id="com.dis.servicios.cliente" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>DisExpress</name>
     <description>Reserva citas para el servicio que necesitas.</description>
     <author email="hi@ionicframework" href="http://ionicframework.com/">Ionic Framework Team</author>
     <content src="index.html" />
@@ -85,4 +85,6 @@
         <variable name="GEOLOCATION_USAGE_DESCRIPTION" value="Mi localizacion" />
     </plugin>
     <plugin name="cordova-plugin-camera" spec="^4.0.3" />
+    <plugin name="cordova-plugin-googleplus" spec="^5.3.1" />
+    <engine name="android" spec="^7.1.1" />
 </widget>

@@ -23,6 +23,7 @@ import { FavoritoPageModule } from '../pages/favorito/favorito.module';
 import { MapaPage } from '../pages/mapa/mapa';
 import { LocalizacionProvider } from '../providers/localizacion';
 import { CuentaPageModule } from '../pages/cuenta/cuenta.module';
+import { GooglePlus } from '@ionic-native/google-plus';
 
 @NgModule({
   declarations: [
@@ -55,8 +56,9 @@ import { CuentaPageModule } from '../pages/cuenta/cuenta.module';
     SplashScreen,
     Geolocation,
     UsuarioProvider,
-    { provide: ErrorHandler, useClass: IonicErrorHandler },
-    LocalizacionProvider
+    LocalizacionProvider,
+    GooglePlus,
+    { provide: ErrorHandler, useClass: IonicErrorHandler }
   ]
 })
 export class AppModule { }

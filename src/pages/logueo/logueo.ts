@@ -6,6 +6,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { HomePage } from '../home/home';
 import firebase from 'firebase';
 import { Platform } from 'ionic-angular/platform/platform';
+import { GooglePlus } from '@ionic-native/google-plus';
 
 /**
  * Generated class for the LogueoPage page.
@@ -32,7 +33,8 @@ export class LogueoPage {
     private afa: AngularFireAuth,
     private formBuilder: FormBuilder,
     public alertCtrl: AlertController,
-    public plt: Platform
+    public plt: Platform,
+    private googlePlus: GooglePlus
   ) {
     this.mobile = this.plt.is('cordova');
     this.form();
@@ -92,7 +94,14 @@ export class LogueoPage {
   }
 
   loguearGoogle() {
-    this.socialSignIn(new firebase.auth.GoogleAuthProvider());
+    if (this.mobile) {
+      this.googlePlus.login({})
+        .then(res => alert(res))
+        .catch(err => console.error(err));
+    } else {
+      return this.afa.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+        .catch(error => alert(error));
+    }
   }
 
   private socialSignIn(provider) {
