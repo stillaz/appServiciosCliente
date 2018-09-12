@@ -85,6 +85,13 @@
         <variable name="GEOLOCATION_USAGE_DESCRIPTION" value="Mi localizacion" />
     </plugin>
     <plugin name="cordova-plugin-camera" spec="^4.0.3" />
-    <plugin name="cordova-plugin-googleplus" spec="^5.3.1" />
+    <plugin name="cordova-plugin-facebook4" spec="^2.4.0">
+        <variable name="APP_ID" value="240286136692177" />
+        <variable name="APP_NAME" value="DIS Servicios" />
+        <variable name="ANDROID_SDK_VERSION" value="4.+" />
+    </plugin>
+    <plugin name="cordova-plugin-googleplus" spec="^5.3.1">
+        <variable name="REVERSED_CLIENT_ID" value="603689567449-76jevp0h6d5m9lktlitibouc5ocf2547.apps.googleusercontent.com" />
+    </plugin>
     <engine name="android" spec="^7.1.1" />
 </widget>

@@ -7,6 +7,7 @@ import { HomePage } from '../home/home';
 import firebase from 'firebase';
 import { Platform } from 'ionic-angular/platform/platform';
 import { GooglePlus } from '@ionic-native/google-plus';
+import { Facebook, FacebookLoginResponse } from '@ionic-native/facebook';
 
 /**
  * Generated class for the LogueoPage page.
@@ -34,7 +35,8 @@ export class LogueoPage {
     private formBuilder: FormBuilder,
     public alertCtrl: AlertController,
     public plt: Platform,
-    private googlePlus: GooglePlus
+    private googlePlus: GooglePlus,
+    private fb: Facebook
   ) {
     this.mobile = this.plt.is('cordova');
     this.form();
@@ -90,26 +92,29 @@ export class LogueoPage {
   }
 
   loguearFacebook() {
-    this.socialSignIn(new firebase.auth.FacebookAuthProvider());
-  }
-
-  loguearGoogle() {
     if (this.mobile) {
-      this.googlePlus.login({})
-        .then(res => alert(res))
-        .catch(err => console.error(err));
+      this.fb.login(['public_profile', 'user_friends', 'email'])
+        .then((res: FacebookLoginResponse) => console.log('Logged into Facebook!', res))
+        .catch(e => console.log('Error logging into Facebook', e));
     } else {
-      return this.afa.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+      return this.afa.auth.signInWithPopup(new firebase.auth.FacebookAuthProvider())
         .catch(error => alert(error));
     }
   }
 
-  private socialSignIn(provider) {
+  async loguearGoogle() {
     if (this.mobile) {
-      return this.afa.auth.signInWithRedirect(provider)
-        .catch(error => alert(error));
+      this.googlePlus.login({
+        scopes: 'profile',
+        webClientId: '603689567449-76jevp0h6d5m9lktlitibouc5ocf2547.apps.googleusercontent.com',
+        offline: true
+      }).then(res => {
+        this.afa.auth.signInWithCredential(firebase.auth.GoogleAuthProvider.credential(res.idToken)).then(res => {
+          this.navCtrl.setRoot(HomePage);
+        }).catch(err => alert(err));
+      }).catch(err => alert(err));
     } else {
-      return this.afa.auth.signInWithPopup(provider)
+      return this.afa.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
         .catch(error => alert(error));
     }
   }

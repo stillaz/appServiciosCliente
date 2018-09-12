@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "603689567449-5u7n3tef296827u9otekn2en7mtbpu5l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dis.barber",
+            "certificate_hash": "469cf2b9faa96cbb272016a43d4f3df50f455741"
+          }
+        },
+        {
           "client_id": "603689567449-76jevp0h6d5m9lktlitibouc5ocf2547.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "603689567449-us02uh4mia6l6p3v0ul0ej1o0oqdre7p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

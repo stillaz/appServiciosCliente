@@ -24,6 +24,7 @@ import { MapaPage } from '../pages/mapa/mapa';
 import { LocalizacionProvider } from '../providers/localizacion';
 import { CuentaPageModule } from '../pages/cuenta/cuenta.module';
 import { GooglePlus } from '@ionic-native/google-plus';
+import { Facebook } from '@ionic-native/facebook';
 
 @NgModule({
   declarations: [
@@ -58,6 +59,7 @@ import { GooglePlus } from '@ionic-native/google-plus';
     UsuarioProvider,
     LocalizacionProvider,
     GooglePlus,
+    Facebook,
     { provide: ErrorHandler, useClass: IonicErrorHandler }
   ]
 })

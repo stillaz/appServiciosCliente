@@ -58,7 +58,7 @@ export class MyApp {
                       this.rootPage = HomePage;
                       this.iniciar = false;
                     }
-                  }, err => {
+                  }, () => {
                     if (this.iniciar) {
                       this.usuarioServicio.setUsuario(data);
                       this.rootPage = HomePage;
