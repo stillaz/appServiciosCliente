@@ -43,9 +43,9 @@ export class MyApp {
         if (user) {
           let clienteDoc = this.afs.doc<ClienteOptions>('clientes/' + user.email);
           user.getIdToken().then(token => {
-            clienteDoc.update({ token: token }).then(() => {
-              clienteDoc.valueChanges().subscribe(data => {
-                if (data) {
+            clienteDoc.valueChanges().subscribe(data => {
+              if (data) {
+                clienteDoc.update({ token: token }).then(() => {
                   let options = {
                     enableHighAccuracy: true,
                     timeout: 5000,
@@ -65,19 +65,25 @@ export class MyApp {
                       this.iniciar = false;
                     }
                   });
-                } else {
-                  let usuario: ClienteOptions = {
-                    correoelectronico: user.email,
-                    id: user.displayName,
-                    nombre: user.displayName,
-                    imagen: user.photoURL,
-                    telefono: user.phoneNumber,
-                    uid: user.uid,
-                    token: token
-                  };
-                  clienteDoc.set(usuario);
-                }
-              });
+                }).catch(err => {
+                  let errmensaje = err;
+                  if (err.code === 'not-found') {
+                    errmensaje = 'El ususario no existe en la base de datos';
+                  }
+                  alert(errmensaje);
+                });
+              } else {
+                let usuario: ClienteOptions = {
+                  correoelectronico: user.email,
+                  id: user.displayName,
+                  nombre: user.displayName,
+                  imagen: user.photoURL,
+                  telefono: user.phoneNumber,
+                  uid: user.uid,
+                  token: token
+                };
+                clienteDoc.set(usuario);
+              }
             });
           });
         } else {
