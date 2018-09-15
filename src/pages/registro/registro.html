@@ -89,15 +89,15 @@
         </ion-item>
 
         <ion-item style="height: 100px" *ngIf="mobile">
-          <ion-fab bottom center [disabled]="!todo.value.correoelectronico">
+          <ion-fab bottom center>
             <button ion-fab mini>
               <ion-icon name="image"></ion-icon>
             </button>
             <ion-fab-list side="left">
-              <button ion-fab [disabled]="!todo.value.correoelectronico" (tap)="sacarFoto()">
+              <button ion-fab (tap)="sacarFoto()">
                 <ion-icon name="camera"></ion-icon>
               </button>
-              <button ion-fab [disabled]="!todo.value.correoelectronico" (tap)="cargarImagen()">
+              <button ion-fab (tap)="cargarImagen()">
                 <ion-icon name="cloud-upload"></ion-icon>
               </button>
             </ion-fab-list>

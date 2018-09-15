@@ -54,16 +54,6 @@ export class RegistroPage {
       this.usuario = {} as ClienteOptions;
       this.usuario.correoelectronico = this.username;
     }
-    this.usuarioDoc = this.afs.doc<ClienteOptions>(this.filePathCliente + this.usuario.correoelectronico);
-    this.usuarioDoc.valueChanges().subscribe(data => {
-      if (data) {
-        this.usuario = data;
-
-        this.nuevo = false;
-
-        this.form();
-      }
-    });
 
     this.form();
   }
