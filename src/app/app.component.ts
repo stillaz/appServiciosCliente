@@ -14,6 +14,7 @@ import { FavoritoPage } from '../pages/favorito/favorito';
 import { LocalizacionProvider } from '../providers/localizacion';
 import { Geolocation } from '@ionic-native/geolocation';
 import { CuentaPage } from '../pages/cuenta/cuenta';
+import { FmcProvider } from '../providers/fmc';
 
 @Component({
   templateUrl: 'app.html'
@@ -23,7 +24,16 @@ export class MyApp {
   pages: any[];
   iniciar = true;
 
-  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, private afa: AngularFireAuth, private afs: AngularFirestore, public usuarioServicio: UsuarioProvider, public localizacionServicio: LocalizacionProvider, private geolocation: Geolocation) {
+  constructor(
+    platform: Platform,
+    statusBar: StatusBar,
+    splashScreen: SplashScreen,
+    private afa: AngularFireAuth,
+    private afs: AngularFirestore,
+    public usuarioServicio: UsuarioProvider,
+    public localizacionServicio: LocalizacionProvider,
+    private geolocation: Geolocation,
+    fcm: FmcProvider) {
     this.pages = [
       { title: 'Inicio', component: HomePage, icon: 'home', selected: true },
       { title: 'Mi cuenta', component: CuentaPage, icon: 'contact', selected: false },
@@ -45,6 +55,7 @@ export class MyApp {
           user.getIdToken().then(token => {
             clienteDoc.valueChanges().subscribe(data => {
               if (data) {
+                fcm.getToken();
                 clienteDoc.update({ token: token }).then(() => {
                   let options = {
                     enableHighAccuracy: true,

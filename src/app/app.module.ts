@@ -25,6 +25,7 @@ import { LocalizacionProvider } from '../providers/localizacion';
 import { CuentaPageModule } from '../pages/cuenta/cuenta.module';
 import { GooglePlus } from '@ionic-native/google-plus';
 import { Facebook } from '@ionic-native/facebook';
+import { FmcProvider } from '../providers/fmc';
 
 @NgModule({
   declarations: [
@@ -60,6 +61,7 @@ import { Facebook } from '@ionic-native/facebook';
     LocalizacionProvider,
     GooglePlus,
     Facebook,
+    FmcProvider,
     { provide: ErrorHandler, useClass: IonicErrorHandler }
   ]
 })
