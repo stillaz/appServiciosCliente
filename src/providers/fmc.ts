@@ -48,7 +48,6 @@ export class FmcProvider {
   }
 
   private saveTokenToFirestore(token) {
-    alert(token);
     if (!token) return;
 
     const ruta = 'usuarios/' + this.usuario.getUsuario().id;
