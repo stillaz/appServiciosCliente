@@ -26,6 +26,7 @@ import { CuentaPageModule } from '../pages/cuenta/cuenta.module';
 import { GooglePlus } from '@ionic-native/google-plus';
 import { Facebook } from '@ionic-native/facebook';
 import { FmcProvider } from '../providers/fmc';
+import { Firebase } from '@ionic-native/firebase';
 
 @NgModule({
   declarations: [
@@ -62,6 +63,7 @@ import { FmcProvider } from '../providers/fmc';
     GooglePlus,
     Facebook,
     FmcProvider,
+    Firebase,
     { provide: ErrorHandler, useClass: IonicErrorHandler }
   ]
 })
