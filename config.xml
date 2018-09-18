@@ -39,6 +39,7 @@
         <splash density="port-xhdpi" src="resources/android/splash/drawable-port-xhdpi-screen.png" />
         <splash density="port-xxhdpi" src="resources/android/splash/drawable-port-xxhdpi-screen.png" />
         <splash density="port-xxxhdpi" src="resources/android/splash/drawable-port-xxxhdpi-screen.png" />
+        <hook src="fixFirebasePlugin.js" type="before_build" />
     </platform>
     <platform name="ios">
         <allow-intent href="itms:*" />
@@ -93,6 +94,6 @@
     <plugin name="cordova-plugin-googleplus" spec="^5.3.1">
         <variable name="REVERSED_CLIENT_ID" value="603689567449-76jevp0h6d5m9lktlitibouc5ocf2547.apps.googleusercontent.com" />
     </plugin>
-    <engine name="android" spec="^7.1.1" />
     <plugin name="cordova-plugin-firebase" spec="^2.0.1" />
+    <engine name="android" spec="^7.1.1" />
 </widget>

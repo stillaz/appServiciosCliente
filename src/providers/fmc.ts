@@ -32,7 +32,7 @@ export class FmcProvider {
     let token;
 
     if (this.platform.is('android')) {
-      token = await this.firebase.getToken()
+      token = await this.firebase.getToken();
     }
 
     if (this.platform.is('ios')) {
@@ -50,11 +50,10 @@ export class FmcProvider {
   private saveTokenToFirestore(token) {
     if (!token) return;
 
-    const ruta = 'clientes/' + this.usuario.getUsuario().id;
-
     const usuarioDoc = this.afs.doc<ClienteOptions>(this.usuario.getFilePathCliente());
 
-    return usuarioDoc.update({ token: token });
+
+    return usuarioDoc.update({ token: token }).catch(err => alert(err));
   }
 
   public getNotificaciones(): Observable<number> {

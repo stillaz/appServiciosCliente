@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, AlertController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { LoginOptions } from '../../interfaces/login-options';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
@@ -19,7 +19,7 @@ import { Facebook, FacebookLoginResponse } from '@ionic-native/facebook';
 @IonicPage()
 @Component({
   selector: 'page-logueo',
-  templateUrl: 'logueo.html',
+  templateUrl: 'logueo.html'
 })
 export class LogueoPage {
 
@@ -36,7 +36,8 @@ export class LogueoPage {
     public alertCtrl: AlertController,
     public plt: Platform,
     private googlePlus: GooglePlus,
-    private fb: Facebook
+    private fb: Facebook,
+    public loadingCtrl: LoadingController
   ) {
     this.mobile = this.plt.is('cordova');
     this.form();
@@ -102,21 +103,23 @@ export class LogueoPage {
     }
   }
 
-  async loguearGoogle() {
+  loguearGoogle() {
     if (this.mobile) {
       this.googlePlus.login({
         scopes: 'profile',
         webClientId: '603689567449-76jevp0h6d5m9lktlitibouc5ocf2547.apps.googleusercontent.com',
         offline: true
-      }).then(res => {
-        this.afa.auth.signInWithCredential(firebase.auth.GoogleAuthProvider.credential(res.idToken)).then(res => {
-          this.navCtrl.setRoot(HomePage);
-        }).catch(err => alert(err));
-      }).catch(err => alert(err));
+      })
+        .then(res => {
+          this.afa.auth.signInWithCredential(firebase.auth.GoogleAuthProvider.credential(res.idToken)).then(() => {
+          }).catch(err => alert(err));
+        })
+        .catch(err => alert('Ha ocurrido un error conectando con el servicio. Error: ' + err));
     } else {
       return this.afa.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
         .catch(error => alert(error));
     }
   }
+
 
 }

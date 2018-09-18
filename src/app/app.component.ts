@@ -15,6 +15,7 @@ import { LocalizacionProvider } from '../providers/localizacion';
 import { Geolocation } from '@ionic-native/geolocation';
 import { CuentaPage } from '../pages/cuenta/cuenta';
 import { FmcProvider } from '../providers/fmc';
+//import { FmcProvider } from '../providers/fmc';
 
 @Component({
   templateUrl: 'app.html'
