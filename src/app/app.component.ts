@@ -61,7 +61,7 @@ export class MyApp {
                   tap(msg => {
                     const idmensaje = this.afs.createId();
                     const mensajeDoc = this.afs.doc(this.usuarioServicio.getFilePathCliente() + '/mensajes/' + idmensaje);
-                    alert(msg);
+                    alert(JSON.stringify(msg));
                   })).subscribe();
               }
               let options = {
