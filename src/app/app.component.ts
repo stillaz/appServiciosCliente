@@ -15,7 +15,7 @@ import { LocalizacionProvider } from '../providers/localizacion';
 import { Geolocation } from '@ionic-native/geolocation';
 import { CuentaPage } from '../pages/cuenta/cuenta';
 import { FmcProvider } from '../providers/fmc';
-//import { FmcProvider } from '../providers/fmc';
+import { tap } from 'rxjs/operators';
 
 @Component({
   templateUrl: 'app.html'
@@ -56,6 +56,14 @@ export class MyApp {
           clienteDoc.valueChanges().subscribe(data => {
             if (data) {
               fcm.getToken();
+              if (platform.is('cordova')) {
+                fcm.listenToNotifications().pipe(
+                  tap(msg => {
+                    const idmensaje = this.afs.createId();
+                    const mensajeDoc = this.afs.doc(this.usuarioServicio.getFilePathCliente() + '/mensajes/' + idmensaje);
+                    alert(msg);
+                  })).subscribe();
+              }
               let options = {
                 enableHighAccuracy: true,
                 timeout: 5000,
