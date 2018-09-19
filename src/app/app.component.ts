@@ -55,8 +55,9 @@ export class MyApp {
           let clienteDoc = this.afs.doc<ClienteOptions>('clientes/' + user.email);
           clienteDoc.valueChanges().subscribe(data => {
             if (data) {
-              fcm.getToken();
+              this.usuarioServicio.setUsuario(data);
               if (platform.is('cordova')) {
+                fcm.getToken();
                 fcm.listenToNotifications().pipe(
                   tap(msg => {
                     const idmensaje = this.afs.createId();
@@ -72,7 +73,6 @@ export class MyApp {
               this.geolocation.watchPosition(options).subscribe(localizacion => {
                 if (this.iniciar) {
                   this.localizacionServicio.setPosicion(localizacion);
-                  this.usuarioServicio.setUsuario(data);
                   this.rootPage = HomePage;
                   this.iniciar = false;
                 }

@@ -48,11 +48,7 @@ export class FmcProvider {
   }
 
   private saveTokenToFirestore(token) {
-    alert(token);
-    alert('entra');
     if (!token) return;
-    alert('entra2');
-    alert(this.usuario.getFilePathCliente());
     const usuarioDoc = this.afs.doc<ClienteOptions>(this.usuario.getFilePathCliente());
 
 
