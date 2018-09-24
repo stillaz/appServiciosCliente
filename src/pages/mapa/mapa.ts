@@ -154,7 +154,7 @@ export class MapaPage {
   }
 
   reservar(idempresa: string) {
-    this.navCtrl.push('AgendaEmpresaPage', {
+    this.navCtrl.push('ServicioPage', {
       idempresa: idempresa
     });
   }

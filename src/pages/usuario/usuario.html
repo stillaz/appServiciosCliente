@@ -8,12 +8,6 @@
 
   <ion-navbar>
     <ion-title>Selecciona el usuario</ion-title>
-
-    <ion-buttons start>
-      <button ion-button (click)="cerrar()">
-        <ion-icon name="md-close"></ion-icon>
-      </button>
-    </ion-buttons>
   </ion-navbar>
 
 </ion-header>
@@ -21,9 +15,9 @@
 <ion-content padding>
   <ion-list *ngFor="let usuario of usuarios">
     <ion-item>
-      <ion-thumbnail item-start *ngIf="usuario.imagen">
+      <ion-avatar item-start *ngIf="usuario.imagen">
         <img [src]="usuario.imagen">
-      </ion-thumbnail>
+      </ion-avatar>
       <h2>{{usuario.nombre}}</h2>
 
       <div>

@@ -40,10 +40,10 @@ export class MyApp {
       { title: 'Mi cuenta', component: CuentaPage, icon: 'contact', selected: false },
       { title: 'Mis favoritos', component: FavoritoPage, icon: 'heart', selected: false },
       { title: 'Mis citas', component: CitaPage, icon: 'bookmark', selected: false },
-      { title: 'Mensajes', component: HomePage, icon: 'mail', selected: false },
+      //{ title: 'Mensajes', component: HomePage, icon: 'mail', selected: false },
       { title: 'Ajustes', component: HomePage, icon: 'switch', selected: false },
-      { title: 'Sugerencias', component: HomePage, icon: 'star', selected: false },
-      { title: 'Atención al cliente', component: HomePage, icon: 'headset', selected: false }
+      //{ title: 'Sugerencias', component: HomePage, icon: 'star', selected: false },
+      //{ title: 'Atención al cliente', component: HomePage, icon: 'headset', selected: false }
     ];
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
@@ -60,9 +60,9 @@ export class MyApp {
                 fcm.getToken();
                 fcm.listenToNotifications().pipe(
                   tap(msg => {
-                    const idmensaje = this.afs.createId();
-                    const mensajeDoc = this.afs.doc(this.usuarioServicio.getFilePathCliente() + '/mensajes/' + idmensaje);
-                    alert(JSON.stringify(msg));
+                    //const idmensaje = this.afs.createId();
+                    //const mensajeDoc = this.afs.doc(this.usuarioServicio.getFilePathCliente() + '/mensajes/' + idmensaje);
+                    //alert(JSON.stringify(msg));
                   })).subscribe();
               }
               let options = {
@@ -78,7 +78,6 @@ export class MyApp {
                 }
               }, () => {
                 if (this.iniciar) {
-                  this.usuarioServicio.setUsuario(data);
                   this.rootPage = HomePage;
                   this.iniciar = false;
                 }

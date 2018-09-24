@@ -5,5 +5,6 @@ export interface TotalesServiciosOptions{
     imagenusuario: string,
     totalServicios: number,
     cantidadServicios: number,
-    fecha: any
+    fecha: any,
+    pendientes: number
 }

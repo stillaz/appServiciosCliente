@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonicPage, NavController, NavParams, Content, AlertController } from 'ionic-angular';
-import { AngularFirestoreDocument, AngularFirestoreCollection, AngularFirestore } from 'angularfire2/firestore';
+import { IonicPage, NavController, NavParams, Content, AlertController, LoadingController } from 'ionic-angular';
+import { AngularFirestoreDocument, AngularFirestore } from 'angularfire2/firestore';
 import { EmpresaOptions } from '../../interfaces/empresa-options';
 import moment from 'moment';
 import * as DataProvider from '../../providers/constants';
@@ -8,7 +8,14 @@ import { UsuarioOptions } from '../../interfaces/usuario-options';
 import { Observable } from 'rxjs';
 import 'rxjs/add/observable/interval';
 import { ReservaOptions } from '../../interfaces/reserva-options';
-import { DisponibilidadOptions } from '../../interfaces/disponibilidad-options';
+import { ServicioOptions } from '../../interfaces/servicio-options';
+import { UsuarioProvider } from '../../providers/usuario';
+import { TotalDiarioOptions } from '../../interfaces/total-diario-options';
+import { IndiceOptions } from '../../interfaces/indice-options';
+import { TotalesServiciosOptions } from '../../interfaces/totales-servicios-options';
+import { ReservaClienteOptions } from '../../interfaces/reserva-cliente-options';
+import { FavoritoOptions } from '../../interfaces/favorito-options';
+import { ClienteOptions } from '../../interfaces/cliente-options';
 
 /**
  * Generated class for the AgendaEmpresaPage page.
@@ -26,12 +33,18 @@ export class AgendaEmpresaPage {
 
   @ViewChild(Content) content: Content;
 
-  private filePathEmpresa: string;
   private empresaDoc: AngularFirestoreDocument<EmpresaOptions>;
-  empresa: EmpresaOptions;
-
+  servicio: ServicioOptions;
+  private usuarioDoc: AngularFirestoreDocument<UsuarioOptions>;
+  private empresaServicioDoc: AngularFirestoreDocument<FavoritoOptions>;
+  private empresa: EmpresaOptions;
+  private usuario: UsuarioOptions;
+  reservas: ReservaOptions[];
+  horario: ReservaOptions[];
+  horarios: any[];
+  private indisponibles;
+  cliente: ClienteOptions;
   constantes = DataProvider;
-
   horaInicio = 0;
   horaFin = 24;
   tiempoServicio = 30;
@@ -41,170 +54,96 @@ export class AgendaEmpresaPage {
   disabledDates: Date[] = [];
   maxDate: Date = moment(new Date()).add(30, 'days').toDate();
   min: Date = new Date();
-
-  horario: any[];
-  horarios: any[];
-
-  usuariosCollection: AngularFirestoreCollection<UsuarioOptions>;
-  usuarios: UsuarioOptions[];
+  private disponibilidadDoc: AngularFirestoreDocument<ReservaOptions>;
+  idcarrito: number;
 
   constructor(
     public navCtrl: NavController,
     public navParams: NavParams,
     private afs: AngularFirestore,
-    public alertCtrl: AlertController
+    public alertCtrl: AlertController,
+    private usuarioServicio: UsuarioProvider,
+    public loadingCtrl: LoadingController
   ) {
-    let idempresa = this.navParams.get('idempresa');
-    this.filePathEmpresa = 'negocios/' + idempresa;
-    this.empresaDoc = this.afs.doc<EmpresaOptions>(this.filePathEmpresa);
-    this.usuariosCollection = this.empresaDoc.collection('usuarios')
+    this.servicio = this.navParams.get('servicio');
+    const idusuario = this.navParams.get('idusuario');
+    const idempresa = this.navParams.get('idempresa');
+    const filePathEmpresa = 'negocios/' + idempresa;
+    const filePathEmpresaServicio = this.usuarioServicio.getFilePathCliente() + '/negocios/' + idempresa;
+
+    this.empresaDoc = this.afs.doc<EmpresaOptions>(filePathEmpresa);
+    this.usuarioDoc = this.empresaDoc.collection('usuarios').doc<UsuarioOptions>(idusuario);
+    this.empresaServicioDoc = this.afs.doc<FavoritoOptions>(filePathEmpresaServicio);
+
+    this.cliente = this.usuarioServicio.getUsuario();
     this.updateEmpresa();
+    this.updateUsuario();
   }
 
-  updateEmpresa() {
-    this.empresaDoc.valueChanges().subscribe(data => {
-      if (data) {
-        this.empresa = data;
-        let configuracion = this.empresa.configuracion;
-        this.horaInicio = configuracion ? configuracion.horaInicio : this.horaInicio;
-        this.horaFin = configuracion ? configuracion.horaFin : this.horaFin;
-        this.updateUsuarios();
-      } else {
-        this.alertCtrl.create({
-          title: 'Empresas',
-          message: 'La empresa no existe',
-          buttons: [{
-            text: 'OK',
-            handler: () => {
-              this.navCtrl.pop();
-            }
-          }]
-        });
-      }
+  genericAlert(titulo: string, mensaje: string) {
+    let mensajeAlert = this.alertCtrl.create({
+      title: titulo,
+      message: mensaje,
+      buttons: ['OK']
     });
+
+    mensajeAlert.present();
   }
 
   ionViewDidLoad() {
     Observable.interval(60000).subscribe(() => {
-      this.initDate = new Date();
-      this.initDate2 = new Date();
-      this.updateAngenda();
-    });
-  }
-
-  updateUsuarios() {
-    this.usuariosCollection.valueChanges().subscribe(data => {
-      this.usuarios = data.map(usuario => {
-        let servicios = usuario.perfiles.map(perfil => { return perfil.servicios });
-        if (servicios.some(servicio => servicio !== null && servicio.length > 0)) {
-          return usuario;
-        }
-      });
-
-      this.updateAngenda();
+      this.actual = new Date();
+      this.updateAgenda();
     });
   }
 
   setDate(date: Date) {
     this.initDate = date;
-    this.updateAngenda();
+    this.updateAgenda();
   }
 
-  private loadReservasUsuario(usuario: UsuarioOptions) {
-    let dia = moment(this.initDate).startOf('day').toDate().getTime().toString();
-
-    let reservaCollection: AngularFirestoreCollection<ReservaOptions> = this.empresaDoc.collection('usuarios/' + usuario.id + '/disponibilidades/' + dia + '/disponibilidades');
-    return new Promise<ReservaOptions[]>(resolve => {
-      reservaCollection.valueChanges().subscribe(dataReservasUsuario => {
-        resolve(dataReservasUsuario);
+  loadIdCarrito() {
+    let indiceCarritoDoc = this.empresaDoc.collection<IndiceOptions>('indices').doc('carrito');
+    return new Promise(resolve => {
+      indiceCarritoDoc.ref.get().then(data => {
+        this.idcarrito = data.exists ? data.get('id') : 1;
+        indiceCarritoDoc.set({ id: this.idcarrito + 1 });
+        resolve('ok');
       });
     });
   }
 
-  private loadNodisponibleUsuario(usuario: UsuarioOptions) {
-    let indisponibilidadCollection: AngularFirestoreCollection<any> = this.empresaDoc.collection('usuarios/' + usuario.id + '/indisponibilidades');
-    return new Promise<any[]>(resolve => {
-      indisponibilidadCollection.valueChanges().subscribe(indisponibles => {
-        let encontrados = indisponibles.filter(item => {
-          let fechaDesde: Date = moment(new Date(item.fechaDesde)).startOf('day').toDate();
-          let fechaFin: Date = item.indefinido ? moment(new Date(item.fechaDesde)).endOf('day').toDate() : moment(new Date(item.fechaHasta)).endOf('day').toDate();
+  loadHorarioNoDisponible(fecha: Date): ServicioOptions {
+    let encontrado = this.indisponibles.find(item => {
+      let fechaDesde: Date = moment(new Date(item.fechaDesde)).startOf('day').toDate();
+      let fechaFin: Date = item.indefinido ? moment(new Date(item.fechaDesde)).endOf('day').toDate() : moment(new Date(item.fechaHasta)).endOf('day').toDate();
 
-          if (moment(this.initDate).isBetween(fechaDesde, fechaFin)) {
-            return item;
-          }
-        });
-
-        resolve(encontrados);
-      });
-    });
-  }
-
-  private loadDisponibilidadUsuario(usuario) {
-    let noDisponible: any[] = [];
-    return new Promise<any[]>(resolve => {
-      noDisponible[usuario.id] = [];
-      this.loadReservasUsuario(usuario).then(dataReservas => {
-        noDisponible.push({ usuario: usuario, tipo: 'reservas', data: dataReservas });
-        this.loadNodisponibleUsuario(usuario).then(dataNoDisponible => {
-          noDisponible.push({ usuario: usuario, tipo: 'nodisponible', data: dataNoDisponible });
-
-          resolve(noDisponible);
-        });
-      });
-    });
-  }
-
-  private loadDisponibilidadUsuarios() {
-    return new Observable<any[]>((observer) => {
-      let noDisponible: any[] = [];
-
-      this.usuariosCollection.valueChanges().subscribe(data => {
-        data.forEach(usuario => {
-          this.loadDisponibilidadUsuario(usuario).then(dataUsuario => {
-            noDisponible.push.apply(noDisponible, dataUsuario);
-          });
-        });
-        observer.next(noDisponible);
-        observer.complete();
-      });
-
-      return { unsubscribe() { } };
-    });
-  }
-
-  private loadUsuarioDisponible(disponibilidad, fecha: Date): boolean {
-    let datos = disponibilidad.data;
-    switch (disponibilidad.tipo) {
-      case 'reservas':
-        return !(datos.some(item => item.fechaInicio.toDate().getTime() === fecha.getTime()));
-      case 'nodisponible':
-        if (datos.todoDia) {
-          return false;
-        } else {
-          let horaDesde = moment(datos.horaDesde, 'HH:mm').toDate().getHours();
-          let horaHasta = moment(datos.horaHasta, 'HH:mm').toDate().getHours();
-          let horaReserva = fecha.getHours();
-          return !(horaDesde <= horaReserva && horaHasta >= horaReserva);
+      if (moment(this.initDate).isBetween(fechaDesde, fechaFin)) {
+        let horaInicio = item.todoDia ? this.horaInicio : moment(item.horaDesde, 'HH:mm').toDate().getHours();
+        let horaFin = item.todoDia ? this.horaFin : moment(item.horaHasta, 'HH:mm').toDate().getHours() - 1;
+        let horaReserva = fecha.getHours();
+        if (horaReserva >= horaInicio && horaReserva <= horaFin) {
+          return item;
         }
+      }
+    });
+
+    let servicio: ServicioOptions;
+
+    if (encontrado) {
+      servicio = {} as ServicioOptions;
+      servicio.nombre = encontrado.descripcion;
     }
 
-    return true;
+    return servicio;
   }
 
-  private updateUsuariosDisponible(disponibilidadesUsuarios, fecha: Date): UsuarioOptions[] {
-    let usuarios = this.usuarios;
-    disponibilidadesUsuarios.forEach(data => {
-      data.forEach(disponibilidadUsuario => {
-        let item = usuarios.indexOf(disponibilidadUsuario.usuario);
-        if (item) {
-          let disponible = this.loadUsuarioDisponible(disponibilidadUsuario, fecha);
-          if (!disponible) {
-            usuarios.splice(item, 1);
-          }
-        }
-      });
+  updateHorarioNoDisponible() {
+    let indisponibilidadCollection = this.usuarioDoc.collection('indisponibilidades');
+    indisponibilidadCollection.valueChanges().subscribe(indisponibilidades => {
+      this.indisponibles = indisponibilidades;
+      this.updateAgenda();
     });
-    return usuarios;
   }
 
   calcularDentroDe(fechaInicio: Date): string {
@@ -224,49 +163,51 @@ export class AgendaEmpresaPage {
     }
   }
 
-  updateAngenda() {
-    this.loadDisponibilidadUsuarios().subscribe(dataDisponibilidadUsuarios => {
+  updateAgenda() {
+    const inicioReserva = moment(this.actual).add(1, 'hours').toDate();
+    const fecha: Date = moment(this.initDate).startOf('day').toDate();
+    this.disponibilidadDoc = this.usuarioDoc.collection('disponibilidades').doc(fecha.getTime().toString());
+    this.disponibilidadDoc.collection<ReservaOptions>('disponibilidades').valueChanges().subscribe(data => {
+      this.reservas = data;
       this.horario = [];
       this.horarios = [];
       let grupos = [];
       let fechaInicio = moment(this.initDate).startOf('day').hours(this.horaInicio);
       let fechaFin = moment(this.initDate).hours(this.horaFin);
-      let ahora = new Date();
       while (fechaInicio.isSameOrBefore(fechaFin.toDate())) {
         let fechaInicioReserva = fechaInicio.toDate();
         let fechaFinReserva = moment(fechaInicio).add(this.tiempoServicio, 'minutes').toDate();
-        if (moment(fechaFinReserva).add(-60, 'minutes').isSameOrAfter(ahora)) {
-          let usuariosDisponibles = this.updateUsuariosDisponible(dataDisponibilidadUsuarios, fechaInicioReserva);
-          let reserva: DisponibilidadOptions;
-          if (usuariosDisponibles && usuariosDisponibles[0]) {
+        let noDisponible = this.loadHorarioNoDisponible(fechaInicioReserva);
+        let reserva: any;
+        if (!noDisponible && moment(fechaInicioReserva).isSameOrAfter(inicioReserva)) {
+          let reservaEnc = this.reservas.find(item => item.fechaInicio.toDate().getTime() === fechaInicioReserva.getTime());
+          if (!reservaEnc) {
             reserva = {
               fechaInicio: fechaInicioReserva,
               fechaFin: fechaFinReserva,
               estado: this.constantes.ESTADOS_RESERVA.DISPONIBLE,
-              evento: this.constantes.EVENTOS.OTRO,
-              usuarios: usuariosDisponibles,
+              idcarrito: null,
+              cliente: null,
+              servicio: null,
+              idusuario: null,
+              nombreusuario: null,
+              id: null,
+              fechaActualizacion: null,
+              actualiza: null,
+              evento: null,
               dentroDe: this.calcularDentroDe(fechaInicioReserva)
             };
-          }
 
-          if (moment(ahora).isBetween(reserva.fechaInicio, reserva.fechaFin)) {
-            reserva.evento = this.constantes.EVENTOS.ACTUAL;
-            if (reserva.estado === this.constantes.ESTADOS_RESERVA.RESERVADO) {
-              reserva.estado = this.constantes.ESTADOS_RESERVA.EJECUTANDO;
+            let grupo = moment(reserva.fechaInicio).startOf('hours').format('h:mm a');;
+            if (!grupos[grupo]) {
+              grupos[grupo] = [];
             }
-          }
+            grupos[grupo].push(reserva);
 
-          let grupo = moment(reserva.fechaInicio).startOf('hours').format('h:mm a');;
-          if (grupos[grupo] === undefined) {
-            grupos[grupo] = [];
+            this.horario.push(reserva);
           }
-          grupos[grupo].push(reserva);
-
-          this.horario.push(reserva);
-          fechaInicio = moment(reserva.fechaFin);
-        } else {
-          fechaInicio = fechaInicio.add(this.tiempoServicio, 'minutes');
         }
+        fechaInicio = moment(fechaFinReserva);
       }
 
       for (let grupo in grupos) {
@@ -275,12 +216,176 @@ export class AgendaEmpresaPage {
     });
   }
 
-  reservar(reserva: DisponibilidadOptions) {
-    this.navCtrl.push('ReservaPage', {
-      disponibilidad: reserva,
-      idempresa: this.empresa.id,
-      horario: this.horario
+  updateEmpresa() {
+    this.empresaDoc.valueChanges().subscribe(data => {
+      if (data) {
+        this.empresa = data;
+      } else {
+        this.genericAlert('Error', 'La empresa no existe.');
+        this.navCtrl.popToRoot();
+      }
     });
+  }
+
+  updateUsuario() {
+    this.usuarioDoc.valueChanges().subscribe(data => {
+      if (data) {
+        this.usuario = data;
+        let configuracion = this.usuario.configuracion;
+        if (configuracion) {
+          this.horaInicio = configuracion.horaInicio;
+          this.horaFin = configuracion.horaFin;
+          this.tiempoServicio = configuracion.tiempoDisponibilidad;
+        }
+        this.updateHorarioNoDisponible();
+      }
+    });
+  }
+
+  guardar(reserva: any) {
+    const batch = this.afs.firestore.batch();
+    const reservaDoc: AngularFirestoreDocument<ReservaOptions> = this.disponibilidadDoc.collection('disponibilidades').doc(reserva.fechaInicio.getTime().toString());
+    batch.set(reservaDoc.ref, reserva);
+
+    const mesServicio = moment(reserva.fechaInicio).startOf('month').toDate().getTime().toString();
+
+    const totalesServiciosDoc = this.empresaDoc.collection('totalesservicios').doc(mesServicio);
+
+    const totalServiciosReserva = reserva.servicio.map(servicioReserva => Number(servicioReserva.valor)).reduce((a, b) => a + b);
+
+    this.disponibilidadDoc.ref.get().then(datosDiarios => {
+      if (datosDiarios.exists) {
+        let totalDiarioActual = datosDiarios.get('totalServicios');
+        let cantidadDiarioActual = datosDiarios.get('cantidadServicios');
+        let pendientesDiarioActual = datosDiarios.get('pendientes');
+        let totalDiario = totalDiarioActual ? Number(totalDiarioActual) + totalServiciosReserva : totalServiciosReserva;
+        let cantidadDiario = cantidadDiarioActual ? Number(cantidadDiarioActual) + 1 : 1;
+        let pendientesDiario = pendientesDiarioActual ? Number(pendientesDiarioActual) + 1 : 1;
+        batch.update(this.disponibilidadDoc.ref, { totalServicios: totalDiario, cantidadServicios: cantidadDiario, fecha: new Date(), pendientes: pendientesDiario });
+      } else {
+        let totalServicioUsuario: TotalDiarioOptions = {
+          idusuario: this.usuario.id,
+          usuario: reserva.nombreusuario,
+          imagenusuario: '',
+          totalServicios: totalServiciosReserva,
+          cantidadServicios: 1,
+          año: reserva.fechaInicio.getFullYear(),
+          dia: reserva.fechaInicio.getDay(),
+          id: moment(reserva.fechaInicio).startOf('day').toDate().getTime(),
+          mes: reserva.fechaInicio.getMonth(),
+          fecha: new Date(),
+          pendientes: 1
+        }
+        batch.set(this.disponibilidadDoc.ref, totalServicioUsuario);
+      }
+
+      totalesServiciosDoc.ref.get().then(() => {
+        batch.set(totalesServiciosDoc.ref, { ultimaactualizacion: new Date() });
+
+        let totalesServiciosUsuarioDoc = totalesServiciosDoc.collection('totalesServiciosUsuarios').doc<TotalesServiciosOptions>(this.usuario.id);
+
+        totalesServiciosUsuarioDoc.ref.get().then(datos => {
+          if (datos.exists) {
+            const totalActual = datos.get('totalServicios');
+            const cantidadActual = datos.get('cantidadServicios');
+            const pendientesActual = datos.get('pendientes');
+            const totalServicios = Number(totalActual) + totalServiciosReserva;
+            const cantidadTotal = Number(cantidadActual) + 1;
+            const totalPendientes = Number(pendientesActual) + 1;
+            const fechaActualizacion = new Date();
+
+            batch.update(totalesServiciosUsuarioDoc.ref, { totalServicios: totalServicios, cantidadServicios: cantidadTotal, fecha: fechaActualizacion, pendientes: totalPendientes });
+          } else {
+            let totalServicioUsuario: TotalesServiciosOptions = {
+              idusuario: this.usuario.id,
+              usuario: reserva.nombreusuario,
+              imagenusuario: '',
+              totalServicios: totalServiciosReserva,
+              cantidadServicios: 1,
+              fecha: new Date(),
+              pendientes: 1
+            }
+            batch.set(totalesServiciosUsuarioDoc.ref, totalServicioUsuario);
+          }
+
+          let reservaCliente: ReservaClienteOptions = {
+            estado: this.constantes.ESTADOS_RESERVA.RESERVADO,
+            fechaFin: reserva.fechaFin,
+            fechaInicio: reserva.fechaInicio,
+            idcarrito: reserva.idcarrito,
+            servicio: reserva.servicio,
+            usuario: this.usuario,
+            empresa: this.empresa,
+            fechaActualizacion: new Date(),
+            id: reserva.id
+          };
+          const filePathServicio = this.usuarioServicio.getFilePathCliente() + '/servicios/' + reserva.fechaInicio.getTime().toString();
+          const servicioDoc = this.afs.doc(filePathServicio);
+          batch.set(servicioDoc.ref, reservaCliente);
+
+          this.empresaServicioDoc.ref.get().then(data => {
+            let cantidad = 1;
+            if (data.exists) {
+              cantidad += Number(data.get('servicios'));
+            }
+
+            let favorito: FavoritoOptions = {
+              actualizacion: new Date(),
+              empresa: this.empresa,
+              servicios: cantidad
+            };
+
+            batch.set(this.empresaServicioDoc.ref, favorito);
+
+            const serviciosDoc = this.afs.doc('servicioscliente/' + reserva.id);
+
+            batch.set(serviciosDoc.ref, reserva);
+
+            batch.commit().then(() => {
+              this.genericAlert('Cita asignada', 'La cita ha sido asignada.');
+            }).catch(err => this.genericAlert('Error', err));
+
+            this.navCtrl.popToRoot();
+          });
+        });
+      });
+    }).catch(err => {
+      this.genericAlert('Error reserva', err);
+      this.navCtrl.pop();
+    });
+  }
+
+  reservar(reserva: ReservaOptions) {
+    this.loadingCtrl.create({
+      content: 'Registrando la cita...',
+      dismissOnPageChange: true
+    }).present();
+    this.loadIdCarrito().then(() => {
+      let servicioId = this.afs.createId();
+
+      const disponible: boolean = !this.reservas.some(data => moment(data.fechaInicio.toDate()).isSame(reserva.fechaInicio));
+      if (disponible) {
+        const reservaNueva = {
+          cliente: this.usuarioServicio.getUsuario(),
+          estado: reserva.estado,
+          evento: reserva.evento,
+          fechaFin: reserva.fechaFin,
+          fechaInicio: reserva.fechaInicio,
+          idcarrito: this.idcarrito,
+          idusuario: this.usuario.id,
+          nombreusuario: this.usuario.nombre,
+          servicio: [this.servicio],
+          id: servicioId,
+          actualiza: 'cliente',
+          fechaActualizacion: new Date()
+        }
+
+        this.guardar(reservaNueva);
+      } else {
+        this.genericAlert('Error al reservar', 'La cita ya se encuentra reservada para otro usuario.');
+        this.navCtrl.pop();
+      }
+    }).catch(err => alert('No fue posible procesar la cita. Inténtelo más tardes'));
   }
 
 }

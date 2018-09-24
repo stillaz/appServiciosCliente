@@ -9,5 +9,6 @@ export interface TotalDiarioOptions{
     idusuario: string,
     usuario: string,
     imagenusuario: string,
-    fecha: Date
+    fecha: Date,
+    pendientes: number
 }
