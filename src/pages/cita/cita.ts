@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, AlertController, ToastController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, AlertController, ToastController, ActionSheetController } from 'ionic-angular';
 import * as DataProvider from '../../providers/constants';
 import { ReservaClienteOptions } from '../../interfaces/reserva-cliente-options';
 import { AngularFirestoreCollection, AngularFirestore, AngularFirestoreDocument } from 'angularfire2/firestore';
@@ -43,7 +43,8 @@ export class CitaPage {
     public usuarioServicio: UsuarioProvider,
     private afs: AngularFirestore,
     public alertCtrl: AlertController,
-    public toastCtrl: ToastController
+    public toastCtrl: ToastController,
+    public actionSheetCtrl: ActionSheetController
   ) {
     let modo = this.navParams.get('modo');
     this.mostrarFiltros = !modo;
@@ -141,7 +142,7 @@ export class CitaPage {
     }
   }
 
-  cancelar(cita: ReservaClienteOptions) {
+  private cancelar(cita: ReservaClienteOptions) {
     this.alertCtrl.create({
       title: 'Cancelar cita',
       message: '¿Está seguro de cancelar la cita?',
@@ -237,6 +238,20 @@ export class CitaPage {
         text: 'Ok'
       }]
     }).present();
+  }
+
+  opciones(cita: ReservaClienteOptions) {
+    let actionSheet = this.actionSheetCtrl.create({
+      title: 'Opciones',
+      buttons: [{
+        text: 'Cancelar cita',
+        icon: 'close',
+        handler: () => {
+          this.cancelar(cita)
+        }
+      }]
+    });
+    actionSheet.present();
   }
 
 }

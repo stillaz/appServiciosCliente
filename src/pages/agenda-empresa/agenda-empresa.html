@@ -20,8 +20,8 @@
     <ion-toolbar>
       <ion-row>
         <ion-col>
-          <span float-end ion-datepicker (ionChanged)="setDate($event);" [max]="maxDate" [min]="initDate2" [value]="initDate" [showMaxAndMin]="true"
-            [disabledDates]="disabledDates" clear class="ScheduleDate" [localeStrings]="constantes.LOCALE_STRINGS">
+          <span float-end ion-datepicker (ionChanged)="setDate($event);" [max]="maxDate" [min]="initDate2" [value]="initDate"
+            [showMaxAndMin]="true" [disabledDates]="disabledDates" clear class="ScheduleDate" [localeStrings]="constantes.LOCALE_STRINGS">
             <span>
               <button ion-button icon-left clear>
                 <ion-icon name="clipboard"></ion-icon>
@@ -41,7 +41,10 @@
 
 
 <ion-content padding no-tap-scroll="true">
-  <ion-list>
+  <ion-list *ngIf="!horarios || !horarios[0]">
+    No hay disponibilidades para {{initDate | date: 'mediumDate'}}
+  </ion-list>
+  <ion-list *ngIf="horarios && horarios[0]">
     <ion-item-group *ngFor="let horario of horarios">
 
       <ion-item-divider sticky color="light">
@@ -55,7 +58,9 @@
 
         <ion-item>
           <h2>{{disponibilidad.fechaInicio | date: 'hh:mm a'}} &mdash; {{disponibilidad.fechaFin | date: 'hh:mm a'}}</h2>
-          <ion-note><h5>Dentro de {{disponibilidad.dentroDe}}</h5></ion-note>
+          <ion-note>
+            <h5>Dentro de {{disponibilidad.dentroDe}}</h5>
+          </ion-note>
           <p>{{disponibilidad.estado}}</p>
 
           <button ion-button [hidden]="disponibilidad.estado !== constantes.ESTADOS_RESERVA.DISPONIBLE || disponibilidad.fechaFin < actual"

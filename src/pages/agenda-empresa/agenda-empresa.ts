@@ -48,7 +48,7 @@ export class AgendaEmpresaPage {
   horaInicio = 0;
   horaFin = 24;
   tiempoServicio = 30;
-  actual: Date;
+  actual: Date = new Date();
   initDate: Date = new Date();
   initDate2: Date = new Date();
   disabledDates: Date[] = [];
@@ -266,7 +266,7 @@ export class AgendaEmpresaPage {
         let totalServicioUsuario: TotalDiarioOptions = {
           idusuario: this.usuario.id,
           usuario: reserva.nombreusuario,
-          imagenusuario: '',
+          imagenusuario: reserva.imagenusuario,
           totalServicios: totalServiciosReserva,
           cantidadServicios: 1,
           año: reserva.fechaInicio.getFullYear(),
@@ -299,7 +299,7 @@ export class AgendaEmpresaPage {
             let totalServicioUsuario: TotalesServiciosOptions = {
               idusuario: this.usuario.id,
               usuario: reserva.nombreusuario,
-              imagenusuario: '',
+              imagenusuario: reserva.imagenusuario,
               totalServicios: totalServiciosReserva,
               cantidadServicios: 1,
               fecha: new Date(),
@@ -342,7 +342,11 @@ export class AgendaEmpresaPage {
             batch.set(serviciosDoc.ref, reserva);
 
             batch.commit().then(() => {
-              this.genericAlert('Cita asignada', 'La cita ha sido asignada.');
+              const mfecha = moment(reserva.fechaInicio);
+              const esHoy = mfecha.diff(moment(this.actual).startOf('day'), 'day') === 0;
+              let textoFecha = esHoy ? 'hoy' : mfecha.locale('es').format('DD [de] MMMM [de] YYYY');
+              textoFecha += mfecha.locale('es').format(' [a las] hh:mm a.');
+              this.genericAlert('Cita registrada', 'La cita ha sido asignada con ' + reservaCliente.usuario.nombre + ' para ' + textoFecha);
             }).catch(err => this.genericAlert('Error', err));
 
             this.navCtrl.popToRoot();
@@ -367,7 +371,7 @@ export class AgendaEmpresaPage {
       if (disponible) {
         const reservaNueva = {
           cliente: this.usuarioServicio.getUsuario(),
-          estado: reserva.estado,
+          estado: this.constantes.ESTADOS_RESERVA.RESERVADO,
           evento: reserva.evento,
           fechaFin: reserva.fechaFin,
           fechaInicio: reserva.fechaInicio,
@@ -377,7 +381,8 @@ export class AgendaEmpresaPage {
           servicio: [this.servicio],
           id: servicioId,
           actualiza: 'cliente',
-          fechaActualizacion: new Date()
+          fechaActualizacion: new Date(),
+          imagenusuario: this.usuario.imagen
         }
 
         this.guardar(reservaNueva);
@@ -385,7 +390,7 @@ export class AgendaEmpresaPage {
         this.genericAlert('Error al reservar', 'La cita ya se encuentra reservada para otro usuario.');
         this.navCtrl.pop();
       }
-    }).catch(err => alert('No fue posible procesar la cita. Inténtelo más tardes'));
+    }).catch(err => alert('No fue posible procesar la cita. Inténtelo más tarde, error: ' + err));
   }
 
 }
