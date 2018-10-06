@@ -22,8 +22,7 @@
           <p>{{servicio.descripcion}}.</p>
           <p>Valor: {{servicio.valor| currency : USD: symbol: '4.0' }}</p>
           <ion-item>
-            <button block ion-button item-end icon-end (tap)="seleccionar(servicio)">
-              <ion-icon name="arrow-dropright"></ion-icon>
+            <button ion-button clear item-end (tap)="seleccionar(servicio)">
               Seleccionar
             </button>
           </ion-item>

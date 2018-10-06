@@ -40,4 +40,8 @@ export class CuentaPage {
   favoritos(){
     this.navCtrl.push('FavoritoPage');
   }
+
+  salir(){
+    this.usuarioServicio.signOut();
+  }
 }

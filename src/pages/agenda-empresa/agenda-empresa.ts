@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { IonicPage, NavController, NavParams, Content, AlertController, LoadingController } from 'ionic-angular';
-import { AngularFirestoreDocument, AngularFirestore } from 'angularfire2/firestore';
+import { AngularFirestoreDocument, AngularFirestore, AngularFirestoreCollection } from 'angularfire2/firestore';
 import { EmpresaOptions } from '../../interfaces/empresa-options';
 import moment from 'moment';
 import * as DataProvider from '../../providers/constants';
@@ -56,6 +56,7 @@ export class AgendaEmpresaPage {
   min: Date = new Date();
   private disponibilidadDoc: AngularFirestoreDocument<ReservaOptions>;
   idcarrito: number;
+  private reservasCollection: AngularFirestoreCollection<ReservaClienteOptions>;
 
   constructor(
     public navCtrl: NavController,
@@ -70,7 +71,9 @@ export class AgendaEmpresaPage {
     const idempresa = this.navParams.get('idempresa');
     const filePathEmpresa = 'negocios/' + idempresa;
     const filePathEmpresaServicio = this.usuarioServicio.getFilePathCliente() + '/negocios/' + idempresa;
+    const filePathReservas = this.usuarioServicio.getFilePathCliente() + '/servicios';
 
+    this.reservasCollection = this.afs.collection<ReservaClienteOptions>(filePathReservas, ref => ref.where('estado', '==', this.constantes.ESTADOS_RESERVA.RESERVADO));
     this.empresaDoc = this.afs.doc<EmpresaOptions>(filePathEmpresa);
     this.usuarioDoc = this.empresaDoc.collection('usuarios').doc<UsuarioOptions>(idusuario);
     this.empresaServicioDoc = this.afs.doc<FavoritoOptions>(filePathEmpresaServicio);
@@ -359,38 +362,51 @@ export class AgendaEmpresaPage {
     });
   }
 
+  loadReservas(fecha: Date) {
+    return new Promise<boolean>(resolve => {
+      this.reservasCollection.valueChanges().subscribe(data => {
+        resolve(data.some(reserva => reserva.fechaInicio.toDate() === fecha));
+      });
+    });
+  }
+
   reservar(reserva: ReservaOptions) {
     this.loadingCtrl.create({
       content: 'Registrando la cita...',
       dismissOnPageChange: true
     }).present();
-    this.loadIdCarrito().then(() => {
-      let servicioId = this.afs.createId();
-
-      const disponible: boolean = !this.reservas.some(data => moment(data.fechaInicio.toDate()).isSame(reserva.fechaInicio));
-      if (disponible) {
-        const reservaNueva = {
-          cliente: this.usuarioServicio.getUsuario(),
-          estado: this.constantes.ESTADOS_RESERVA.RESERVADO,
-          evento: reserva.evento,
-          fechaFin: reserva.fechaFin,
-          fechaInicio: reserva.fechaInicio,
-          idcarrito: this.idcarrito,
-          idusuario: this.usuario.id,
-          nombreusuario: this.usuario.nombre,
-          servicio: [this.servicio],
-          id: servicioId,
-          actualiza: 'cliente',
-          fechaActualizacion: new Date(),
-          imagenusuario: this.usuario.imagen
-        }
-
-        this.guardar(reservaNueva);
+    this.loadReservas(reserva.fechaInicio).then(data => {
+      if (data) {
+        this.genericAlert('No se puede asignar la cita', 'La fecha y hora de la cita coincide con otra cita que tienes asignada.');
       } else {
-        this.genericAlert('Error al reservar', 'La cita ya se encuentra reservada para otro usuario.');
-        this.navCtrl.pop();
+        this.loadIdCarrito().then(() => {
+          const servicioId = this.afs.createId();
+          const disponible: boolean = !this.reservas.some(data => moment(data.fechaInicio.toDate()).isSame(reserva.fechaInicio));
+          if (disponible) {
+            const reservaNueva = {
+              cliente: this.usuarioServicio.getUsuario(),
+              estado: this.constantes.ESTADOS_RESERVA.RESERVADO,
+              evento: reserva.evento,
+              fechaFin: reserva.fechaFin,
+              fechaInicio: reserva.fechaInicio,
+              idcarrito: this.idcarrito,
+              idusuario: this.usuario.id,
+              nombreusuario: this.usuario.nombre,
+              servicio: [this.servicio],
+              id: servicioId,
+              actualiza: 'cliente',
+              fechaActualizacion: new Date(),
+              imagenusuario: this.usuario.imagen
+            }
+
+            this.guardar(reservaNueva);
+          } else {
+            this.genericAlert('Error al reservar', 'La cita ya se encuentra reservada para otro usuario.');
+            this.navCtrl.pop();
+          }
+        }).catch(err => alert('No fue posible procesar la cita. Inténtelo más tarde, error: ' + err));
       }
-    }).catch(err => alert('No fue posible procesar la cita. Inténtelo más tarde, error: ' + err));
+    });
   }
 
 }

@@ -15,7 +15,7 @@ import { LocalizacionProvider } from '../providers/localizacion';
 import { Geolocation } from '@ionic-native/geolocation';
 import { CuentaPage } from '../pages/cuenta/cuenta';
 import { FmcProvider } from '../providers/fmc';
-import { tap } from 'rxjs/operators';
+//import { tap } from 'rxjs/operators';
 
 @Component({
   templateUrl: 'app.html'
@@ -49,7 +49,6 @@ export class MyApp {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
       statusBar.styleDefault();
-      splashScreen.hide();
       this.afa.auth.onAuthStateChanged(user => {
         if (user) {
           let clienteDoc = this.afs.doc<ClienteOptions>('clientes/' + user.email);
@@ -58,12 +57,12 @@ export class MyApp {
               this.usuarioServicio.setUsuario(data);
               if (platform.is('cordova')) {
                 fcm.getToken();
-                fcm.listenToNotifications().pipe(
+                /*fcm.listenToNotifications().pipe(
                   tap(msg => {
                     //const idmensaje = this.afs.createId();
                     //const mensajeDoc = this.afs.doc(this.usuarioServicio.getFilePathCliente() + '/mensajes/' + idmensaje);
                     //alert(JSON.stringify(msg));
-                  })).subscribe();
+                  })).subscribe();*/
               }
               let options = {
                 enableHighAccuracy: true,
@@ -72,12 +71,14 @@ export class MyApp {
               };
               this.geolocation.watchPosition(options).subscribe(localizacion => {
                 if (this.iniciar) {
+                  splashScreen.hide();
                   this.localizacionServicio.setPosicion(localizacion);
                   this.rootPage = HomePage;
                   this.iniciar = false;
                 }
               }, () => {
                 if (this.iniciar) {
+                  splashScreen.hide();
                   this.rootPage = HomePage;
                   this.iniciar = false;
                 }
@@ -96,6 +97,7 @@ export class MyApp {
             }
           });
         } else {
+          splashScreen.hide();
           this.rootPage = LogueoPage;
         }
       });

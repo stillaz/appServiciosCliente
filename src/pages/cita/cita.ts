@@ -199,13 +199,16 @@ export class CitaPage {
           batch.update(serviciosDoc.ref, { estado: this.constantes.ESTADOS_RESERVA.CANCELADO, fechaActualizacion: new Date(), actualiza: 'cliente' });
 
           disponibilidadDoc.ref.get().then(datosDiarios => {
-            let totalDiarioActual = datosDiarios.get('totalServicios');
-            let cantidadDiarioActual = datosDiarios.get('cantidadServicios');
-            let totalDiario = Number(totalDiarioActual) - totalServiciosReserva;
-            let cantidadDiario = Number(cantidadDiarioActual) - 1;
-            batch.update(disponibilidadDoc.ref, { totalServicios: totalDiario, cantidadServicios: cantidadDiario, fecha: new Date() });
+            const totalDiarioActual = datosDiarios.get('totalServicios');
+            const cantidadDiarioActual = datosDiarios.get('cantidadServicios');
+            const pendientesDiarioActual = datosDiarios.get('pendientes');
+            const totalDiario = Number(totalDiarioActual) - totalServiciosReserva;
+            const cantidadDiario = Number(cantidadDiarioActual) - 1;
+            const pendientesDiario = Number(pendientesDiarioActual) - 1;
+            batch.update(disponibilidadDoc.ref, { totalServicios: totalDiario, cantidadServicios: cantidadDiario, fecha: new Date(), pendientes: pendientesDiario });
 
             totalesServiciosDoc.ref.get().then(() => {
+            
               batch.set(totalesServiciosDoc.ref, { ultimaactualizacion: new Date() });
 
               let totalesServiciosUsuarioDoc = totalesServiciosDoc.collection('totalesServiciosUsuarios').doc<TotalesServiciosOptions>(cita.usuario.id);
