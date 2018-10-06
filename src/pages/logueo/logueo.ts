@@ -95,8 +95,11 @@ export class LogueoPage {
   loguearFacebook() {
     if (this.mobile) {
       this.fb.login(['public_profile', 'user_friends', 'email'])
-        .then((res: FacebookLoginResponse) => console.log('Logged into Facebook!', res))
-        .catch(e => console.log('Error logging into Facebook', e));
+        .then((res: FacebookLoginResponse) => {
+          this.afa.auth.signInWithCredential(firebase.auth.FacebookAuthProvider.credential(res.authResponse.accessToken)).then(() => {
+          }).catch(err => alert(err));
+        })
+        .catch(err => alert('Ha ocurrido un error conectando con el servicio. Error: ' + JSON.stringify(err)));
     } else {
       return this.afa.auth.signInWithPopup(new firebase.auth.FacebookAuthProvider())
         .catch(error => alert(error));
