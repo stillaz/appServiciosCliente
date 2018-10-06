@@ -18,9 +18,9 @@
         <ion-col #item *ngFor="let servicio of grupo.servicios" class="cell-1">
           <img *ngIf="servicio.imagen" [src]="servicio.imagen" width="100%">
           <br />
-          <strong>{{servicio.nombre}}</strong>
-          <p>{{servicio.descripcion}}.</p>
-          <p>Valor: {{servicio.valor| currency : USD: symbol: '4.0' }}</p>
+          <h3 style="margin-top: 0px; margin-bottom: 5px">{{servicio.nombre}}</h3>
+          <p style="margin: 0px">{{servicio.descripcion}}.</p>
+          <p style="margin: 0px">Valor: {{servicio.valor| currency : USD: symbol: '4.0' }}</p>
           <ion-item>
             <button ion-button clear item-end (tap)="seleccionar(servicio)">
               Seleccionar

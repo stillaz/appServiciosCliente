@@ -41,7 +41,7 @@ export class MyApp {
       { title: 'Mis favoritos', component: FavoritoPage, icon: 'heart', selected: false },
       { title: 'Mis citas', component: CitaPage, icon: 'bookmark', selected: false },
       //{ title: 'Mensajes', component: HomePage, icon: 'mail', selected: false },
-      { title: 'Ajustes', component: HomePage, icon: 'switch', selected: false },
+      //{ title: 'Ajustes', component: HomePage, icon: 'switch', selected: false },
       //{ title: 'Sugerencias', component: HomePage, icon: 'star', selected: false },
       //{ title: 'Atención al cliente', component: HomePage, icon: 'headset', selected: false }
     ];
