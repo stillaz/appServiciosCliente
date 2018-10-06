@@ -118,7 +118,7 @@ export class AgendaEmpresaPage {
 
   loadHorarioNoDisponible(fecha: Date): ServicioOptions {
     let encontrado = this.indisponibles.find(item => {
-      if (item.repetir.id === -1 || item.repetir.id === 10 || fecha.getDay() + 1 === item.repetir.id) {
+      if (item.repetir.id === -1 || item.repetir.id === 10 || fecha.getDay() === item.repetir.id + 1) {
         let fechaDesde: Date = moment(new Date(item.fechaDesde)).startOf('day').toDate();
         let fechaFin: Date = item.indefinido ? moment(fecha).endOf('day').toDate() : moment(new Date(item.fechaHasta)).endOf('day').toDate();
 
