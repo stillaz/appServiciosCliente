@@ -8,22 +8,18 @@ import { AngularFireAuth } from 'angularfire2/auth';
 import { ClienteOptions } from '../interfaces/cliente-options';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { UsuarioProvider } from '../providers/usuario';
-import { HomePage } from '../pages/home/home';
-import { CitaPage } from '../pages/cita/cita';
-import { FavoritoPage } from '../pages/favorito/favorito';
 import { LocalizacionProvider } from '../providers/localizacion';
 import { Geolocation } from '@ionic-native/geolocation';
-import { CuentaPage } from '../pages/cuenta/cuenta';
 import { FmcProvider } from '../providers/fmc';
+import { TabsPage } from '../pages/tabs/tabs';
+import { HomePage } from '../pages/home/home';
 //import { tap } from 'rxjs/operators';
 
 @Component({
   templateUrl: 'app.html'
 })
 export class MyApp {
-  rootPage: any = LogueoPage;
-  pages: any[];
-  iniciar = true;
+  rootPage: any = HomePage;
 
   constructor(
     platform: Platform,
@@ -35,26 +31,18 @@ export class MyApp {
     public localizacionServicio: LocalizacionProvider,
     private geolocation: Geolocation,
     fcm: FmcProvider) {
-    this.pages = [
-      { title: 'Inicio', component: HomePage, icon: 'home', selected: true },
-      { title: 'Mi cuenta', component: CuentaPage, icon: 'contact', selected: false },
-      { title: 'Mis favoritos', component: FavoritoPage, icon: 'heart', selected: false },
-      { title: 'Mis citas', component: CitaPage, icon: 'bookmark', selected: false },
-      //{ title: 'Mensajes', component: HomePage, icon: 'mail', selected: false },
-      //{ title: 'Ajustes', component: HomePage, icon: 'switch', selected: false },
-      //{ title: 'Sugerencias', component: HomePage, icon: 'star', selected: false },
-      //{ title: 'Atención al cliente', component: HomePage, icon: 'headset', selected: false }
-    ];
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
       statusBar.styleDefault();
       this.afa.auth.onAuthStateChanged(user => {
         if (user) {
+          this.rootPage = TabsPage;
           let clienteDoc = this.afs.doc<ClienteOptions>('clientes/' + user.email);
           clienteDoc.valueChanges().subscribe(data => {
             if (data) {
               this.usuarioServicio.setUsuario(data);
+              splashScreen.hide();
               if (platform.is('cordova')) {
                 fcm.getToken();
                 /*fcm.listenToNotifications().pipe(
@@ -70,18 +58,7 @@ export class MyApp {
                 maximumAge: 0
               };
               this.geolocation.watchPosition(options).subscribe(localizacion => {
-                if (this.iniciar) {
-                  splashScreen.hide();
-                  this.localizacionServicio.setPosicion(localizacion);
-                  this.rootPage = HomePage;
-                  this.iniciar = false;
-                }
-              }, () => {
-                if (this.iniciar) {
-                  splashScreen.hide();
-                  this.rootPage = HomePage;
-                  this.iniciar = false;
-                }
+                this.localizacionServicio.setPosicion(localizacion);
               });
             } else {
               let usuario: ClienteOptions = {
@@ -102,12 +79,6 @@ export class MyApp {
         }
       });
     });
-  }
-
-  openPage(page) {
-    this.pages.find(item => item.selected).selected = false;
-    page.selected = true;
-    this.rootPage = page.component;
   }
 }
 

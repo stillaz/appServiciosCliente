@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, Platform } from 'ionic-angular';
 import { ClienteOptions } from '../../interfaces/cliente-options';
 import { UsuarioProvider } from '../../providers/usuario';
 
@@ -22,7 +22,8 @@ export class CuentaPage {
   constructor(
     public navCtrl: NavController,
     public navParams: NavParams,
-    private usuarioServicio: UsuarioProvider
+    private usuarioServicio: UsuarioProvider,
+    public platform: Platform
   ) {
     this.usuario = this.usuarioServicio.getUsuario();
   }
@@ -43,5 +44,6 @@ export class CuentaPage {
 
   salir(){
     this.usuarioServicio.signOut();
+    this.platform.exitApp();
   }
 }
