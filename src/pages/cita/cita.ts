@@ -50,9 +50,9 @@ export class CitaPage {
     this.mostrarFiltros = !modo;
     this.modo = modo ? modo : 'pendientes';
     this.filePathReservas = this.usuarioServicio.getFilePathCliente() + '/servicios';
-    this.reservasCollection = this.afs.collection<ReservaClienteOptions>(this.filePathReservas, ref => ref.where('estado', '==', this.constantes.ESTADOS_RESERVA.RESERVADO));
-    this.finalizadosCollection = this.afs.collection<ReservaClienteOptions>(this.filePathReservas, ref => ref.where('estado', '==', this.constantes.ESTADOS_RESERVA.FINALIZADO));
-    this.canceladosCollection = this.afs.collection<ReservaClienteOptions>(this.filePathReservas, ref => ref.where('estado', '==', this.constantes.ESTADOS_RESERVA.CANCELADO));
+    this.reservasCollection = this.afs.collection<ReservaClienteOptions>(this.filePathReservas, ref => ref.where('estado', '==', this.constantes.ESTADOS_RESERVA.RESERVADO).orderBy('fechaInicio', 'asc'));
+    this.finalizadosCollection = this.afs.collection<ReservaClienteOptions>(this.filePathReservas, ref => ref.where('estado', '==', this.constantes.ESTADOS_RESERVA.FINALIZADO).orderBy('fechaInicio', 'desc'));
+    this.canceladosCollection = this.afs.collection<ReservaClienteOptions>(this.filePathReservas, ref => ref.where('estado', '==', this.constantes.ESTADOS_RESERVA.CANCELADO).orderBy('fechaInicio', 'desc'));
     this.todosCollection = this.afs.collection<ReservaClienteOptions>(this.filePathReservas, ref => ref.limit(20));
     if (!modo) {
       this.updateReservas();

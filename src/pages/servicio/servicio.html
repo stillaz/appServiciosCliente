@@ -15,17 +15,12 @@
     <ion-item-group *ngFor="let grupo of servicios">
       <ion-item-divider color="light">{{grupo.grupo}}</ion-item-divider>
       <ion-row>
-        <ion-col #item *ngFor="let servicio of grupo.servicios" class="cell-1">
+        <ion-col #item *ngFor="let servicio of grupo.servicios" class="cell-1" (tap)="seleccionar(servicio)">
           <img *ngIf="servicio.imagen" [src]="servicio.imagen" width="100%">
           <br />
-          <h3 style="margin-top: 0px; margin-bottom: 5px">{{servicio.nombre}}</h3>
+          <h2 style="margin-top: 0px; margin-bottom: 5px"><strong>{{servicio.nombre}}</strong></h2>
           <p style="margin: 0px">{{servicio.descripcion}}.</p>
           <p style="margin: 0px">Valor: {{servicio.valor| currency : USD: symbol: '4.0' }}</p>
-          <ion-item>
-            <button ion-button clear item-end (tap)="seleccionar(servicio)">
-              Seleccionar
-            </button>
-          </ion-item>
         </ion-col>
       </ion-row>
     </ion-item-group>

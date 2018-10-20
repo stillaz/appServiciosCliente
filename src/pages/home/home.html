@@ -14,16 +14,15 @@
       <ion-row>
         <ion-col #item *ngFor="let empresa of empresasEncontradas" class="cell-1" (click)="reservar(empresa.id)">
           <img *ngIf="empresa.imagen" [src]="empresa.imagen" width="100%">
-          <ion-item [ngSwitch]="empresa.negocio" color="secondary" no-lines text-wrap>
+          <ion-item color="secondary" [ngSwitch]="empresa.negocio" no-lines text-wrap>
             <ion-avatar *ngSwitchCase="'Barbería'" item-start>
               <img src="assets/imgs/barberia-logo.png" width="30px" height="30px" />
             </ion-avatar>
-            <ion-note>{{empresa.negocio}}</ion-note>
-            <br />
-            <h2>{{empresa.nombre}}</h2>
+            <p>{{empresa.negocio}}</p>
           </ion-item>
-          <p style="margin: 0px; color: #c5c5c5">{{empresa.direccion.direccion}}</p>
-          <p style="margin-top: 5px; color: #c5c5c5">Tel: {{empresa.telefono}}</p>
+          <h2 style="margin-top: 0px; text-align: center;"><strong>{{empresa.nombre}}</strong></h2>
+          <p style="margin: 0px;">{{empresa.direccion.direccion}}</p>
+          <p style="margin-top: 5px;">Tel: {{empresa.telefono}}</p>
         </ion-col>
       </ion-row>
     </ion-grid>

@@ -14,7 +14,7 @@
 
 <ion-content padding>
   <ion-list *ngFor="let usuario of usuarios">
-    <ion-item>
+    <ion-item (click)="seleccionar(usuario)">
       <ion-avatar item-start *ngIf="usuario.imagen">
         <img [src]="usuario.imagen">
       </ion-avatar>
@@ -26,7 +26,7 @@
         </ion-note>
       </div>
 
-      <button ion-button item-end large (click)="seleccionar(usuario)">
+      <button ion-button item-end large >
         <ion-icon name="arrow-dropright"></ion-icon>
       </button>
     </ion-item>
