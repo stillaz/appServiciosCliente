@@ -6,26 +6,25 @@
 -->
 <ion-header>
 
-  <ion-navbar>
-    <button ion-button menuToggle icon-only>
-      <ion-icon name='menu'></ion-icon>
-    </button>
-    <ion-title>Mis citas</ion-title>
+  <ion-navbar color="primary">
+    <ion-title>
+      Mis Citas
+    </ion-title>
+
+    <ion-segment color="light" *ngIf="mostrarFiltros" [(ngModel)]="modo" (ionChange)="updateSeleccionado()">
+      <ion-segment-button value="pendientes">
+        Pendientes
+      </ion-segment-button>
+
+      <ion-segment-button value="finalizadas">
+        Finalizadas
+      </ion-segment-button>
+
+      <ion-segment-button value="canceladas">
+        Canceladas
+      </ion-segment-button>
+    </ion-segment>
   </ion-navbar>
-
-  <ion-segment *ngIf="mostrarFiltros" [(ngModel)]="modo" (ionChange)="updateSeleccionado()">
-    <ion-segment-button value="pendientes">
-      Pendientes
-    </ion-segment-button>
-
-    <ion-segment-button value="finalizadas">
-      Finalizadas
-    </ion-segment-button>
-
-    <ion-segment-button value="canceladas">
-      Canceladas
-    </ion-segment-button>
-  </ion-segment>
 </ion-header>
 
 
@@ -45,23 +44,26 @@
         <img [src]="grupo.empresa.imagen" />
         <ion-card-content>
           <b>Teléfono:</b> {{grupo.empresa.telefono}}
-          <br/> <b>Dirección:</b> {{grupo.empresa.direccion.direccion}}
-          <button ion-button color="secondary" small icon-start clear> <ion-icon name="locate"></ion-icon>Mapa
+          <br /> <b>Dirección:</b> {{grupo.empresa.direccion.direccion}}
+          <button ion-button color="secondary" small icon-start clear>
+            <ion-icon name="locate"></ion-icon>Mapa
           </button>
-          <hr/>
+          <hr />
           <ion-list>
             <h2 style="text-align: center"><b>Citas</b></h2>
-            <ion-item color="light" *ngFor="let reserva of grupo.reservas" [attr.track]="reserva.reserva.estado | lowercase" [id]="reserva.reserva.evento">
+            <ion-item color="light" *ngFor="let reserva of grupo.reservas" [attr.track]="reserva.reserva.estado | lowercase"
+              [id]="reserva.reserva.evento">
               <ion-avatar *ngIf="reserva.reserva.usuario && reserva.reserva.usuario.imagen" item-start>
                 <img [src]="reserva.reserva.usuario.imagen" />
               </ion-avatar>
               <p>
-                <b>{{reserva.reserva.fechaInicio.toDate() | date: 'mediumDate'}}</b> - {{reserva.reserva.fechaInicio.toDate()
+                <b>{{reserva.reserva.fechaInicio.toDate() | date: 'mediumDate'}}</b> -
+                {{reserva.reserva.fechaInicio.toDate()
                 | date: 'hh:mm a'}} a {{reserva.reserva.fechaFin.toDate() | date: 'hh:mm a'}}
               </p>
               <p>
                 <b>Servicio:</b> {{reserva.reserva.servicio[0].nombre}} - $ {{reserva.reserva.servicio[0].valor}}
-                <br/>
+                <br />
                 <b>Usuario:</b> {{reserva.reserva.usuario.nombre}} - {{reserva.reserva.usuario.telefono}}
               </p>
               <ion-note>{{reserva.dentroDe}}</ion-note>
@@ -94,7 +96,8 @@
         <img [src]="reserva.empresa.imagen" />
       </ion-avatar>
       <h2><b>{{reserva.empresa.nombre}}</b></h2>
-      <p><b>Fecha:</b> {{reserva.fechaInicio.toDate() | date: 'mediumDate'}} - {{reserva.fechaInicio.toDate() | date: 'HH:mm'}}
+      <p><b>Fecha:</b> {{reserva.fechaInicio.toDate() | date: 'mediumDate'}} - {{reserva.fechaInicio.toDate() | date:
+        'HH:mm'}}
         a {{reserva.fechaFin.toDate() | date: 'HH:mm'}}</p>
       <p><b>Cancelado:</b> {{reserva.fechaActualizacion.toDate() | date: 'medium'}}</p>
     </ion-item>
@@ -106,7 +109,8 @@
         <img [src]="reserva.empresa.imagen" />
       </ion-avatar>
       <h2><b>{{reserva.empresa.nombre}}</b></h2>
-      <p><b>Fecha:</b> {{reserva.fechaInicio.toDate() | date: 'mediumDate'}} - {{reserva.fechaInicio.toDate() | date: 'HH:mm'}}
+      <p><b>Fecha:</b> {{reserva.fechaInicio.toDate() | date: 'mediumDate'}} - {{reserva.fechaInicio.toDate() | date:
+        'HH:mm'}}
         a {{reserva.fechaFin.toDate() | date: 'HH:mm'}}</p>
       <p><b>Estado:</b> {{reserva.estado}}</p>
     </ion-item>

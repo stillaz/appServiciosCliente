@@ -12,14 +12,13 @@ import { LocalizacionProvider } from '../providers/localizacion';
 import { Geolocation } from '@ionic-native/geolocation';
 import { FmcProvider } from '../providers/fmc';
 import { TabsPage } from '../pages/tabs/tabs';
-import { HomePage } from '../pages/home/home';
 //import { tap } from 'rxjs/operators';
 
 @Component({
   templateUrl: 'app.html'
 })
 export class MyApp {
-  rootPage: any = HomePage;
+  rootPage: any = LogueoPage;
 
   constructor(
     platform: Platform,
@@ -52,7 +51,7 @@ export class MyApp {
                     //alert(JSON.stringify(msg));
                   })).subscribe();*/
               }
-              let options = {
+              const options = {
                 enableHighAccuracy: true,
                 timeout: 5000,
                 maximumAge: 0
@@ -61,7 +60,7 @@ export class MyApp {
                 this.localizacionServicio.setPosicion(localizacion);
               });
             } else {
-              let usuario: ClienteOptions = {
+              const usuario: ClienteOptions = {
                 correoelectronico: user.email,
                 id: user.displayName,
                 nombre: user.displayName,

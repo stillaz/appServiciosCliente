@@ -9,16 +9,6 @@
     <button ion-button menuToggle icon-only>
       <ion-icon name='menu'></ion-icon>
     </button>
-
-    <ion-buttons end>
-      <button ion-button>
-        <ion-icon name="notifications"></ion-icon>
-      </button>
-
-      <button ion-button>
-        <ion-icon name="mail"></ion-icon>
-      </button>
-    </ion-buttons>
   </ion-navbar>
 
   <ion-item color="primary" no-lines (click)="perfil()">
@@ -66,9 +56,7 @@
     </ion-item>
   </ion-list>-->
 
-  <ion-item>
-    <button ion-button block color="danger" (click)="salir()">
-      Cerrar sesión
-    </button>
-  </ion-item>
+  <button ion-button full color="danger" (click)="salir()">
+    Cerrar sesión
+  </button>
 </ion-content>

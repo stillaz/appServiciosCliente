@@ -1,19 +1,10 @@
 <ion-header>
 
-  <ion-navbar color="light">
+  <ion-navbar color="primary">
+    <ion-title>Inicio</ion-title>
     <button ion-button menuToggle icon-only>
       <ion-icon name='menu'></ion-icon>
     </button>
-
-    <ion-buttons start>
-      <button ion-button icon-end clear style="color: #E74C3C" (click)="favoritos()">
-        <ion-icon name="heart"></ion-icon>
-      </button>
-      <button ion-button icon-end clear color="secondary" (click)="mapa()">
-        mapa
-        <ion-icon name="map"></ion-icon>
-      </button>
-    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
@@ -23,12 +14,12 @@
       <ion-row>
         <ion-col #item *ngFor="let empresa of empresasEncontradas" class="cell-1" (click)="reservar(empresa.id)">
           <img *ngIf="empresa.imagen" [src]="empresa.imagen" width="100%">
-          <ion-item [ngSwitch]="empresa.negocio" color="dark" no-lines text-wrap>
+          <ion-item [ngSwitch]="empresa.negocio" color="secondary" no-lines text-wrap>
             <ion-avatar *ngSwitchCase="'Barbería'" item-start>
               <img src="assets/imgs/barberia-logo.png" width="30px" height="30px" />
             </ion-avatar>
             <ion-note>{{empresa.negocio}}</ion-note>
-            <br/>
+            <br />
             <h2>{{empresa.nombre}}</h2>
           </ion-item>
           <p style="margin: 0px; color: #c5c5c5">{{empresa.direccion.direccion}}</p>
@@ -37,4 +28,9 @@
       </ion-row>
     </ion-grid>
   </ion-list>
+  <ion-fab bottom right> 
+    <button style="background-color: #32db64" ion-fab (click)="mapa()">
+      <ion-icon name="map"></ion-icon>
+    </button>
+  </ion-fab>
 </ion-content>

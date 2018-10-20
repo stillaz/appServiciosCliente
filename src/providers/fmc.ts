@@ -47,10 +47,9 @@ export class FmcProvider {
     return this.firebase.onNotificationOpen();
   }
 
-  private saveTokenToFirestore(token) {
+  private async saveTokenToFirestore(token) {
     if (!token) return;
     const usuarioDoc = this.afs.doc<ClienteOptions>(this.usuario.getFilePathCliente());
-
 
     return usuarioDoc.update({ token: token }).catch(err => alert(err));
   }

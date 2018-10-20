@@ -1,15 +1,11 @@
 <ion-header>
-  <ion-navbar color="light">
+  <ion-navbar color="primary">
+    <ion-title>
+      Mis Favoritos
+    </ion-title>
     <button ion-button menuToggle icon-only>
       <ion-icon name='menu'></ion-icon>
     </button>
-
-    <ion-buttons start>
-      <button ion-button icon-end clear color="secondary" (click)="mapa()">
-        mapa
-        <ion-icon name="map"></ion-icon>
-      </button>
-    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
@@ -32,4 +28,10 @@
       </ion-row>
     </ion-grid>
   </ion-list>
+
+  <ion-fab bottom right>
+    <button style="background-color: #32db64" ion-fab (click)="mapa()">
+      <ion-icon name="map"></ion-icon>
+    </button>
+  </ion-fab>
 </ion-content>
