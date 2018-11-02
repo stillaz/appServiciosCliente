@@ -60,7 +60,6 @@ export class RegistroPage {
 
   form() {
     this.todo = this.formBuilder.group({
-      id: [this.usuario.id, Validators.required],
       nombre: [this.usuario.nombre, Validators.required],
       telefono: [this.usuario.telefono, Validators.required],
       correoelectronico: [this.usuario.correoelectronico, Validators.required],
@@ -174,7 +173,7 @@ export class RegistroPage {
       this.afa.auth.createUserWithEmailAndPassword(usuario.correoelectronico, usuario.clave).then(data => {
         data.user.getIdToken().then(token => {
           this.usuario = {
-            id: usuario.id,
+            id: usuario.correoelectronico,
             nombre: usuario.nombre,
             telefono: usuario.telefono,
             correoelectronico: usuario.correoelectronico,

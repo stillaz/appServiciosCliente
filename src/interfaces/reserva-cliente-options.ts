@@ -7,7 +7,7 @@ export interface ReservaClienteOptions {
     fechaFin: any,
     estado: string,
     idcarrito: number,
-    servicio: ServicioOptions[],
+    servicio: ServicioOptions,
     usuario: UsuarioOptions,
     empresa: EmpresaOptions,
     fechaActualizacion: any,

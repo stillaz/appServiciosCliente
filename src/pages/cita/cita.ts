@@ -192,7 +192,7 @@ export class CitaPage {
 
           let totalesServiciosDoc = this.afs.doc(filePathEmpresa + '/totalesservicios/' + mesServicio);
 
-          let totalServiciosReserva = reserva.servicio.map(servicioReserva => Number(servicioReserva.valor)).reduce((a, b) => a + b);
+          let totalServiciosReserva = reserva.servicio.valor;
 
           const serviciosDoc = this.afs.doc('servicioscliente/' + cita.id);
 
@@ -208,7 +208,7 @@ export class CitaPage {
             batch.update(disponibilidadDoc.ref, { totalServicios: totalDiario, cantidadServicios: cantidadDiario, fecha: new Date(), pendientes: pendientesDiario });
 
             totalesServiciosDoc.ref.get().then(() => {
-            
+
               batch.set(totalesServiciosDoc.ref, { ultimaactualizacion: new Date() });
 
               let totalesServiciosUsuarioDoc = totalesServiciosDoc.collection('totalesServiciosUsuarios').doc<TotalesServiciosOptions>(cita.usuario.id);

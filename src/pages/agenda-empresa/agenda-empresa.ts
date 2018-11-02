@@ -248,6 +248,7 @@ export class AgendaEmpresaPage {
   }
 
   guardar(reserva: any) {
+    const fecha = new Date();
     const batch = this.afs.firestore.batch();
     const reservaDoc: AngularFirestoreDocument<ReservaOptions> = this.disponibilidadDoc.collection('disponibilidades').doc(reserva.fechaInicio.getTime().toString());
     batch.set(reservaDoc.ref, reserva);
@@ -256,64 +257,59 @@ export class AgendaEmpresaPage {
 
     const totalesServiciosDoc = this.empresaDoc.collection('totalesservicios').doc(mesServicio);
 
-    const totalServiciosReserva = reserva.servicio.map(servicioReserva => Number(servicioReserva.valor)).reduce((a, b) => a + b);
-
     this.disponibilidadDoc.ref.get().then(datosDiarios => {
       if (datosDiarios.exists) {
-        let totalDiarioActual = datosDiarios.get('totalServicios');
-        let cantidadDiarioActual = datosDiarios.get('cantidadServicios');
-        let pendientesDiarioActual = datosDiarios.get('pendientes');
-        let totalDiario = totalDiarioActual ? Number(totalDiarioActual) + totalServiciosReserva : totalServiciosReserva;
-        let cantidadDiario = cantidadDiarioActual ? Number(cantidadDiarioActual) + 1 : 1;
-        let pendientesDiario = pendientesDiarioActual ? Number(pendientesDiarioActual) + 1 : 1;
-        batch.update(this.disponibilidadDoc.ref, { totalServicios: totalDiario, cantidadServicios: cantidadDiario, fecha: new Date(), pendientes: pendientesDiario });
+        const pendientesDiarioActual = datosDiarios.get('pendientes');
+        const pendientesDiario = Number(pendientesDiarioActual) + 1;
+        batch.update(this.disponibilidadDoc.ref, {
+          fecha: fecha,
+          pendientes: pendientesDiario
+        });
       } else {
-        let totalServicioUsuario: TotalDiarioOptions = {
+        const totalServicioUsuario: TotalDiarioOptions = {
           idusuario: this.usuario.id,
           usuario: reserva.nombreusuario,
           imagenusuario: reserva.imagenusuario,
-          totalServicios: totalServiciosReserva,
-          cantidadServicios: 1,
+          totalServicios: 0,
+          cantidadServicios: 0,
           año: reserva.fechaInicio.getFullYear(),
           dia: reserva.fechaInicio.getDay(),
           id: moment(reserva.fechaInicio).startOf('day').toDate().getTime(),
           mes: reserva.fechaInicio.getMonth(),
-          fecha: new Date(),
+          fecha: fecha,
           pendientes: 1
         }
         batch.set(this.disponibilidadDoc.ref, totalServicioUsuario);
       }
 
       totalesServiciosDoc.ref.get().then(() => {
-        batch.set(totalesServiciosDoc.ref, { ultimaactualizacion: new Date() });
+        batch.set(totalesServiciosDoc.ref, { ultimaactualizacion: fecha });
 
-        let totalesServiciosUsuarioDoc = totalesServiciosDoc.collection('totalesServiciosUsuarios').doc<TotalesServiciosOptions>(this.usuario.id);
+        const totalesServiciosUsuarioDoc = totalesServiciosDoc.collection('totalesServiciosUsuarios').doc<TotalesServiciosOptions>(this.usuario.id);
 
         totalesServiciosUsuarioDoc.ref.get().then(datos => {
           if (datos.exists) {
-            const totalActual = datos.get('totalServicios');
-            const cantidadActual = datos.get('cantidadServicios');
             const pendientesActual = datos.get('pendientes');
-            const totalServicios = Number(totalActual) + totalServiciosReserva;
-            const cantidadTotal = Number(cantidadActual) + 1;
             const totalPendientes = Number(pendientesActual) + 1;
-            const fechaActualizacion = new Date();
 
-            batch.update(totalesServiciosUsuarioDoc.ref, { totalServicios: totalServicios, cantidadServicios: cantidadTotal, fecha: fechaActualizacion, pendientes: totalPendientes });
+            batch.update(totalesServiciosUsuarioDoc.ref, {
+              fecha: fecha,
+              pendientes: totalPendientes
+            });
           } else {
-            let totalServicioUsuario: TotalesServiciosOptions = {
+            const totalServicioUsuario: TotalesServiciosOptions = {
               idusuario: this.usuario.id,
               usuario: reserva.nombreusuario,
               imagenusuario: reserva.imagenusuario,
-              totalServicios: totalServiciosReserva,
-              cantidadServicios: 1,
+              totalServicios: 0,
+              cantidadServicios: 0,
               fecha: new Date(),
               pendientes: 1
             }
             batch.set(totalesServiciosUsuarioDoc.ref, totalServicioUsuario);
           }
 
-          let reservaCliente: ReservaClienteOptions = {
+          const reservaCliente: ReservaClienteOptions = {
             estado: this.constantes.ESTADOS_RESERVA.RESERVADO,
             fechaFin: reserva.fechaFin,
             fechaInicio: reserva.fechaInicio,

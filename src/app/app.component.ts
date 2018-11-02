@@ -62,7 +62,7 @@ export class MyApp {
             } else {
               const usuario: ClienteOptions = {
                 correoelectronico: user.email,
-                id: user.displayName,
+                id: user.email,
                 nombre: user.displayName,
                 imagen: user.photoURL,
                 telefono: user.phoneNumber,
