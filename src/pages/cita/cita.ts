@@ -236,7 +236,7 @@ export class CitaPage {
     this.alertCtrl.create({
       title: 'Detalle de la cita',
       subTitle: 'Cita en ' + cita.empresa.nombre,
-      message: 'Fecha: ' + moment(cita.fechaInicio.toDate()).locale('es').format('DD [de] MMMM, YYYY') + '<br/> Hora: ' + moment(cita.fechaInicio.toDate()).locale('es').format('HH:mm') + ' a ' + moment(cita.fechaFin.toDate()).locale('es').format('HH:mm') + '<br/>Usuario: ' + cita.usuario.nombre + '<br/>Servicio: ' + cita.servicio[0].nombre + ' - $ ' + cita.servicio[0].valor,
+      message: 'Fecha: ' + moment(cita.fechaInicio.toDate()).locale('es').format('DD [de] MMMM, YYYY') + '<br/> Hora: ' + moment(cita.fechaInicio.toDate()).locale('es').format('HH:mm') + ' a ' + moment(cita.fechaFin.toDate()).locale('es').format('HH:mm') + '<br/>Usuario: ' + cita.usuario.nombre + '<br/>Servicio: ' + cita.servicio.nombre + ' - $ ' + cita.servicio.valor,
       buttons: [{
         text: 'Ok'
       }]
