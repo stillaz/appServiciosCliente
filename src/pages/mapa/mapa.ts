@@ -91,6 +91,10 @@ export class MapaPage {
       case 'Barbería':
         imagen = 'assets/imgs/barberia-mark.png';
         break;
+
+      case 'Spa':
+        imagen = 'assets/imgs/spa-mark.png';
+        break;
     }
     let direccion = empresa.direccion.direccion.split(',');
     let texto = direccion[0] + ',' + direccion[1];
