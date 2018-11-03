@@ -390,7 +390,7 @@ export class AgendaEmpresaPage {
               idcarrito: this.idcarrito,
               idusuario: this.usuario.id,
               nombreusuario: this.usuario.nombre,
-              servicio: [this.servicio],
+              servicio: this.servicio,
               id: servicioId,
               actualiza: 'cliente',
               fechaActualizacion: new Date(),

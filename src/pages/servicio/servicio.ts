@@ -42,7 +42,7 @@ export class ServicioPage {
       this.servicioDoc.valueChanges().subscribe(data => {
         paquetes.forEach(paquete => {
           const servicio = data.find(servicio => servicio.id === paquete.servicio.id);
-          servicio.grupo = 'Paquetes activos';
+          servicio.grupo[0] = 'Mis paquetes activos';
         });
 
         this.servicios = [];

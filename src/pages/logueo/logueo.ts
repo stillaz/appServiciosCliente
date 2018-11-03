@@ -104,7 +104,7 @@ export class LogueoPage {
           this.afa.auth.signInWithCredential(firebase.auth.FacebookAuthProvider.credential(estado.authResponse.accessToken)).then(() => {
           }).catch(err => alert(err));
         } else {
-          this.facebook.login([]).then((res: FacebookLoginResponse) => {
+          this.facebook.login(['public_profile', 'user_friends', 'email']).then((res: FacebookLoginResponse) => {
             this.loading.present();
             this.afa.auth.signInWithCredential(firebase.auth.FacebookAuthProvider.credential(res.authResponse.accessToken)).then(() => {
             }).catch(err => {

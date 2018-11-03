@@ -8,7 +8,6 @@ import { Observable } from 'rxjs';
 import moment from 'moment';
 import 'rxjs/add/observable/interval';
 import { ReservaOptions } from '../../interfaces/reserva-options';
-import { TotalesServiciosOptions } from '../../interfaces/totales-servicios-options';
 
 /**
  * Generated class for the CitaPage page.
@@ -188,44 +187,27 @@ export class CitaPage {
 
           batch.delete(disponibilidadCancelarDoc.ref);
 
-          let mesServicio = moment(reserva.fechaInicio).startOf('month');
-
-          let totalesServiciosDoc = this.afs.doc(filePathEmpresa + '/totalesservicios/' + mesServicio);
-
-          let totalServiciosReserva = reserva.servicio.valor;
-
           const serviciosDoc = this.afs.doc('servicioscliente/' + cita.id);
 
-          batch.update(serviciosDoc.ref, { estado: this.constantes.ESTADOS_RESERVA.CANCELADO, fechaActualizacion: new Date(), actualiza: 'cliente' });
+          batch.update(serviciosDoc.ref, {
+            estado: this.constantes.ESTADOS_RESERVA.CANCELADO,
+            fechaActualizacion: new Date(), actualiza: 'cliente'
+          });
 
           disponibilidadDoc.ref.get().then(datosDiarios => {
-            const totalDiarioActual = datosDiarios.get('totalServicios');
-            const cantidadDiarioActual = datosDiarios.get('cantidadServicios');
             const pendientesDiarioActual = datosDiarios.get('pendientes');
-            const totalDiario = Number(totalDiarioActual) - totalServiciosReserva;
-            const cantidadDiario = Number(cantidadDiarioActual) - 1;
             const pendientesDiario = Number(pendientesDiarioActual) - 1;
-            batch.update(disponibilidadDoc.ref, { totalServicios: totalDiario, cantidadServicios: cantidadDiario, fecha: new Date(), pendientes: pendientesDiario });
-
-            totalesServiciosDoc.ref.get().then(() => {
-
-              batch.set(totalesServiciosDoc.ref, { ultimaactualizacion: new Date() });
-
-              let totalesServiciosUsuarioDoc = totalesServiciosDoc.collection('totalesServiciosUsuarios').doc<TotalesServiciosOptions>(cita.usuario.id);
-
-              totalesServiciosUsuarioDoc.ref.get().then(datos => {
-                let totalActual = datos.get('totalServicios');
-                let cantidadActual = datos.get('cantidadServicios');
-                batch.update(totalesServiciosUsuarioDoc.ref, { totalServicios: Number(totalActual) - totalServiciosReserva, cantidadServicios: Number(cantidadActual) - 1, fecha: new Date() });
-
-                batch.commit().then(() => {
-                  this.toastCtrl.create({
-                    message: 'La cita en ' + cita.empresa.nombre + ' para ' + textoFecha + ' ha sido cancelada.',
-                    duration: 3000
-                  }).present();
-                }).catch(err => alert(err));
-              });
+            batch.update(disponibilidadDoc.ref, {
+              fecha: new Date(),
+              pendientes: pendientesDiario
             });
+
+            batch.commit().then(() => {
+              this.toastCtrl.create({
+                message: 'La cita en ' + cita.empresa.nombre + ' para ' + textoFecha + ' ha sido cancelada.',
+                duration: 3000
+              }).present();
+            }).catch(err => alert(err));
           });
         }
       }]
